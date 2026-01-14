@@ -25,7 +25,7 @@ export default function useHomeCourses() {
       const resHome = await axios.get(`${backendUrl}/api/courses/home`, {
         withCredentials: true,
       });
-      const home = resHome?.data || {};
+      const home = resHome?.data.result || {};
       dispatch(setHomeCourses({
            newest: home.newest || [],
            bestSellers: home.bestSellers || [],
@@ -33,21 +33,21 @@ export default function useHomeCourses() {
            biggestDiscounts: home.biggestDiscounts || [],
       }));
 
-      let page = 1;
-      const merged = [];
-      while (true) {
-        const res = await axios.get(`${backendUrl}/api/courses?page=${page}`, {
-           withCredentials: true,
-           timeout: 15000,
-        });
-        const chunk = Array.isArray(res?.data?.data) ? res.data.data : [];
-        merged.push(...chunk);
+      // let page = 1;
+      // const merged = [];
+      // while (true) {
+      //   const res = await axios.get(`${backendUrl}/api/courses?page=${page}`, {
+      //      withCredentials: true,
+      //      timeout: 15000,
+      //   });
+      //   const chunk = Array.isArray(res?.data?.data) ? res.data.data : [];
+      //   merged.push(...chunk);
         
-        const pg = res?.data?.pagination || {};
-        if (!pg?.totalPages || page >= Number(pg.totalPages)) break;
-        page += 1;
-      }
-      dispatch(setAllCourses(merged));
+      //   const pg = res?.data?.pagination || {};
+      //   if (!pg?.totalPages || page >= Number(pg.totalPages)) break;
+      //   page += 1;
+      // }
+      // dispatch(setAllCourses(merged));
 
     } catch (err) {
       console.error("Public fetch error:", err);

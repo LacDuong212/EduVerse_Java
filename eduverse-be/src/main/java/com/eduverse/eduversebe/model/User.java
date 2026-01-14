@@ -3,6 +3,7 @@ package com.eduverse.eduversebe.model;
 import com.eduverse.eduversebe.common.globalEnums.UserRole;
 import com.eduverse.eduversebe.common.model.BaseEntity;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -14,7 +15,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Document(collection = "users")
 public class User extends BaseEntity {
 

@@ -23,6 +23,14 @@ public enum SuccessCodes {
     PASSWORD_RESET_SUCCESS(21004, "Password reset successfully", OK),
     LOGOUT_SUCCESS(21005, "Logout successful", OK),
     SEND_OTP_SUCCESS(21006, "OTP sent. Please check your email!", OK),
+
+
+    //--Course (22xxx)
+    GET_HOME_COURSE_SUCCESS(22000, "Get home course successfully", OK),
+
+    //--Category (23xxx)
+    GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
+
     ;
 
     int responseCode;
