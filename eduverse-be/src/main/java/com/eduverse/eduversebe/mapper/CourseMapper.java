@@ -10,32 +10,27 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface CourseMapper {
 
-    // 1. Map các trường lồng nhau (Nested Fields) ra ngoài phẳng
+    @Mapping(source = "instructor.ref", target = "instructorId")
     @Mapping(source = "instructor.name", target = "instructorName")
     @Mapping(source = "instructor.avatar", target = "instructorAvatar")
-    @Mapping(source = "instructor.ref", target = "instructorId") // ref là ID của user
 
     @Mapping(source = "rating.average", target = "averageRating")
     @Mapping(source = "rating.count", target = "ratingCount")
 
-    // categoryId giữ nguyên, còn name/slug sẽ set ở Service
+    @Mapping(source = "categoryId", target = "category.id")
+    @Mapping(target = "category.name", ignore = true)
+
+    @Mapping(target = "isFree", ignore = true)
+
+    @Mapping(target = "thumbnail", expression = "java(course.getThumbnail() != null ? course.getThumbnail() : course.getImage())")
+
     CourseResponse toCourseResponse(Course course);
 
-    // 2. Hàm xử lý logic tính toán sau khi Map xong
     @AfterMapping
     default void calculateFields(Course course, @MappingTarget CourseResponse response) {
-        // Tính discountAmount: Nếu có giá giảm thì trừ, không thì bằng 0
-        if (course.getPrice() != null && course.getDiscountPrice() != null) {
-            response.setDiscountAmount(course.getPrice() - course.getDiscountPrice());
-        } else {
-            response.setDiscountAmount(0.0);
-        }
+        Double finalPrice = (course.getDiscountPrice() != null) ? course.getDiscountPrice() : course.getPrice();
+        response.setIsFree(finalPrice == null || finalPrice == 0);
 
-        // Tính isFree: Nếu giá = 0 hoặc null thì là free
-        if (course.getPrice() == null || course.getPrice() == 0) {
-            response.setIsFree(true);
-        } else {
-            response.setIsFree(false);
-        }
+        if (response.getAverageRating() == null) response.setAverageRating(0.0);
     }
 }

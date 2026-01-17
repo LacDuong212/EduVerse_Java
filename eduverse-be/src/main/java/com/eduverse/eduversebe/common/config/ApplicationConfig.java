@@ -20,23 +20,20 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // Trả về một lambda expression
+
         return username -> {
 
-            // 1. Tìm User trong DB của bạn (User Model gốc)
-            User user = userRepository.findById(username)
+            User user = userRepository.findByEmail(username)
                     .orElseThrow(() -> new AppException(ErrorCodes.USER_NOT_FOUND));
 
-            // 2. Chuyển đổi (Map) sang User của Spring Security
-            // Lưu ý: org.springframework.security.core.userdetails.User là class có sẵn của Spring
             return new org.springframework.security.core.userdetails.User(
-                    user.getId(),// Username
-                    user.getPassword(),       // Password đã hash
-                    user.isActivated(),       // Enabled (Kích hoạt)
-                    true,                     // Account Non Expired
-                    true,                     // Credentials Non Expired
+                    user.getId(),
+                    user.getPassword(),
+                    user.isActivated(),
                     true,
-                    Collections.singletonList( // Danh sách quyền (Role)
+                    true,
+                    true,
+                    Collections.singletonList(
                             new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
                     )
             );

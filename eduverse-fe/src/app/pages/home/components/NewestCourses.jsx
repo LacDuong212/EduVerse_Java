@@ -19,7 +19,7 @@ const NewestCourses = () => {
 
         <Row className="g-4">
           {newestCourses.map((course) => (
-            <Col sm={6} lg={4} xl={3} key={course._id}>
+            <Col sm={6} lg={4} xl={3} key={course.id}>
               <CourseCard course={course} />
             </Col>
           ))}

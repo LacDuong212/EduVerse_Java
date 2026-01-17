@@ -15,6 +15,6 @@ public class LoginResponse {
     private String name;
     private String email;
     private UserRole role;
-    private String avatar;
+    private String pfpImg;
     private List<String> interests;
 }

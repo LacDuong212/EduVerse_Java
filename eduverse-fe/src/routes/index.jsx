@@ -32,7 +32,7 @@ const ResetPassword = lazy(() => import('@/app/auth/reset-password/page'));
 
 // PUBLIC
 import HomePage from "../app/pages/home/page";
-// import CoursesPage from "../app/pages/course/grid/page";
+import CoursesPage from "../app/pages/course/grid/page";
 // import BecomeInstructorPage from '../app/student/become-instructor';
 // import CourseDetails from "../app/pages/course/detail/page";
 // import InstructorDetailsPage from "../app/pages/instructors/detail";
@@ -44,12 +44,12 @@ export const publicRoutes = [{
   path: '/home',
   name: 'Home',
   element: <HomePage />
+},{
+  path: '/courses',
+  name: 'Courses',
+  element: <CoursesPage />
 }]
-// },{
-//   path: '/courses',
-//   name: 'Courses',
-//   element: <CoursesPage />
-// }, {
+//, {
 //   path: '/courses/:courseId/watch/:lectureId?',
 //   name: 'My Video Player',
 //   isNested: false,

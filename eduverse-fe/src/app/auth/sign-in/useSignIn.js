@@ -46,7 +46,7 @@ export default function useSignIn(onSignUpSuccess) {
           if (profile.data.success) {
             dispatch(setLogin(profile.data.result));
 
-            const roleRedirect = profile.data.user?.role === "student" ? "/" : "/instructor/dashboard";
+            const roleRedirect = profile.data.result.role === "student" ? "/" : "/instructor/dashboard";
             const redirectTo = searchParams.get("redirectTo") || roleRedirect;
 
             toast.success("Welcome back!");

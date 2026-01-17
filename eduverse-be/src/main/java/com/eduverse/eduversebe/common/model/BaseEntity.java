@@ -11,6 +11,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -24,11 +25,11 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Field("createdAt")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Field("updatedAt")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Version
     @Field("__v")

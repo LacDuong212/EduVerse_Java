@@ -15,7 +15,7 @@ public class UserResponse {
     private String bio;
     private String website;
     private User.Socials socials;
-    private String avatar;
+    private String pfpImg;
     private Boolean isVerified;
     private UserRole role;
     private List<String> interests;

@@ -39,47 +39,30 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // Phân quyền request
                 .authorizeHttpRequests(auth -> auth
-                        // --- CÁC API CÔNG KHAI (KHÔNG CẦN LOGIN) ---
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/courses/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-
-                        // --- CÁC API CÒN LẠI BẮT BUỘC PHẢI LOGIN ---
                         .anyRequest().authenticated()
                 )
 
-                // Quản lý session: STATELESS (Vì dùng JWT, Server không lưu session)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Cấu hình AuthenticationProvider
                 .authenticationProvider(authenticationProvider())
-
-                // Thêm Filter kiểm tra JWT trước khi vào Filter xác thực Username/Password
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // 2. Cấu hình CORS (Cho phép Frontend gọi vào)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // Cho phép nguồn nào? ("*" là tất cả, hoặc sửa thành "http://localhost:3000")
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
-
-        // Cho phép method nào?
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // Cho phép header nào?
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "x-auth-token"));
-
-        // Cho phép gửi credentials (cookie, authorization header)
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -87,12 +70,11 @@ public class SecurityConfig {
         return source;
     }
 
-    // 3. Cấu hình AuthenticationProvider (Dùng để check User trong DB)
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Cung cấp Service lấy user từ DB
-        authProvider.setPasswordEncoder(passwordEncoder()); // Cung cấp thuật toán mã hóa pass
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 

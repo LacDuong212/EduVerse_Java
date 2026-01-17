@@ -6,11 +6,11 @@ import CommonCourseCard from './CommonCourseCard';
 
 
 const adaptCourseData = (c) => {
-  const ratingAvg = Number.isFinite(c?.rating?.average) ? Number(c.rating.average) : 0;
-  const ratingCount = Number.isFinite(c?.rating?.count) ? Number(c.rating.count) : 0;
+  const ratingAvg = Number.isFinite(c?.rating) ? Number(c.rating) : 0;
+  const ratingCount = Number.isFinite(c?.ratingCount) ? Number(c.ratingCount) : 0;
 
-  const instructorName = c?.instructor?.name ?? 'Unknown';
-  const instructorAvatar = c?.instructor?.avatar ?? 'https://placehold.co/80x80?text=In';
+  const instructorName = c?.instructorName ?? 'Unknown';
+  const instructorAvatar = c?.instructorAvatar || 'https://placehold.co/80x80?text=In';
   const thumbnail = c?.thumbnail || "https://res.cloudinary.com/dw1fjzfom/image/upload/v1764372521/courses/course_6905f3d6dd25706e06ca2952_image.jpg";
 
   const price = Number(c?.price ?? 0);

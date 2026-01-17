@@ -34,7 +34,7 @@ const AppProvidersWrapper = ({ children }) => {
         );
 
         if (response.data.success) {
-          dispatch(setLogin(response.data.user));
+          dispatch(setLogin(response.data.result));
         } else {
           dispatch(setLogout());
         }

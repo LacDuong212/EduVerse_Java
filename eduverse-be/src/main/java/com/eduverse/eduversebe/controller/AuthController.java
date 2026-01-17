@@ -10,12 +10,14 @@ import com.eduverse.eduversebe.dto.respone.UserResponse;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.repository.UserRepository;
 import com.eduverse.eduversebe.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
 
+    @Operation(summary = "abc")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterRequest request) {
 
@@ -97,27 +100,25 @@ public class AuthController {
 
         if (authentication == null ||
                 !authentication.isAuthenticated() ||
-                authentication.getPrincipal().equals("anonymousUser")) {
+                authentication instanceof AnonymousAuthenticationToken ||
+                "anonymousUser".equals(authentication.getPrincipal())) {
 
             return ResponseEntity.ok(ApiResponse.<UserResponse>builder()
                     .success(false)
                     .message("Guest user")
-                    .result(null)   // user: null
+                    .result(null)
                     .timestamp(java.time.LocalDateTime.now())
                     .build());
         }
 
-        String userId = authentication.getName();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCodes.USER_NOT_FOUND));
+        User user = (User) authentication.getPrincipal();
 
         UserResponse userResponse = UserResponse.builder()
                 ._id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .avatar(user.getAvatar())
+                .pfpImg(user.getPfpImg())
                 .interests(user.getInterests())
                 .build();
 

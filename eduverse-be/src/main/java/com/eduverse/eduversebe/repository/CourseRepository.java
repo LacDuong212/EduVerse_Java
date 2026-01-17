@@ -20,10 +20,9 @@ public interface CourseRepository extends MongoRepository<Course, String> {
 
 
     @Aggregation(pipeline = {
-            "{ '$match': { 'status': 'Live', 'isPrivate': false, 'isDeleted': false, 'discountPrice': { '$ne': null } } }",
+            "{ '$match': { 'status': ?0, 'isPrivate': false, 'isDeleted': false, 'discountPrice': { '$ne': null } } }",
             "{ '$addFields': { 'discountAmount': { '$subtract': ['$price', '$discountPrice'] } } }",
-            "{ '$sort': { 'discountAmount': -1 } }",
-            "{ '$limit': 4 }"
+            "{ '$sort': { 'discountAmount': -1 } }"
     })
-    List<Course> findBiggestDiscounts();
+    List<Course> findBiggestDiscounts(CourseStatus status, Pageable pageable);
 }

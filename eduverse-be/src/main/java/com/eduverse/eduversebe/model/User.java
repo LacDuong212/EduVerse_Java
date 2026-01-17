@@ -2,13 +2,19 @@ package com.eduverse.eduversebe.model;
 
 import com.eduverse.eduversebe.common.globalEnums.UserRole;
 import com.eduverse.eduversebe.common.model.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -17,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 @Document(collection = "users")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     private String name;
 
@@ -35,12 +41,12 @@ public class User extends BaseEntity {
     private String website = "";
 
     @Builder.Default
-    private Socials socials =  new Socials();
+    private Socials socials = new Socials();
 
-    @Field("pfpImg")
     @Builder.Default
-    private String avatar = "";
+    private String pfpImg = "";
 
+    @JsonIgnore
     private String password;
 
     @Builder.Default
@@ -63,6 +69,36 @@ public class User extends BaseEntity {
 
     @Indexed(unique = true, sparse = true)
     private String googleId;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name().toUpperCase()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return isActivated;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isVerified;
+    }
 
     @Getter
     @Setter

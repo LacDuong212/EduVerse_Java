@@ -1,5 +1,6 @@
 package com.eduverse.eduversebe.service;
 
+import com.eduverse.eduversebe.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,8 +23,7 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
-    public String extractUsername(String token) {
-        // Subject của token chính là userID hoặc email (do lúc generate ta set)
+    public String extractUserId(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -40,13 +40,16 @@ public class JwtService {
                 .getBody();
     }
 
-    // --- 2. CÁC HÀM KIỂM TRA (VALIDATE) ---
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        // Kiểm tra: Email trong token khớp với User trong DB VÀ Token chưa hết hạn
-        // Lưu ý: userDetails.getUsername() ở đây chính là email (do ta cài đặt bên User model)
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        final String userIdFromToken = extractUserId(token);
+
+        if (userDetails instanceof User) {
+            String dbId = ((User) userDetails).getId();
+            return userIdFromToken.equals(dbId) && !isTokenExpired(token);
+        }
+
+        return !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

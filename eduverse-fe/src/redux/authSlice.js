@@ -12,6 +12,8 @@ const userSlice = createSlice({
     setLogin: (state, action) => {
       state.isLoggedIn = true;
       state.userData = action.payload;
+
+      console.log(state.isLoggedIn, state.userData)
     },
     setLogout: (state) => {
       state.isLoggedIn = false;
