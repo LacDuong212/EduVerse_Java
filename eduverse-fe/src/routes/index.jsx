@@ -9,7 +9,7 @@ const ResetPassword = lazy(() => import('@/app/auth/reset-password/page'));
 // INSTRUCTOR
 // import InstructorAccount from "../app/instructor/account";
 // import InstructorCourseDetail from "../app/instructor/course-detail";
-// import InstructorDashboard from "../app/instructor/dashboard";
+import InstructorDashboard from "../app/instructor/dashboard";
 // import InstructorEarnings from '../app/instructor/earnings';
 // import InstructorManageCoursePage from "../app/instructor/manage-course";
 // import InstructorMyCourses from "../app/instructor/my-courses";
@@ -84,141 +84,144 @@ export const publicRoutes = [{
 export const authRoutes = [{
   path: '/auth/sign-in',
   name: 'Sign In',
-  element: <SignIn />
+  element: <SignIn />,
+  guestOnly: true,
 }, {
   path: '/auth/sign-up',
   name: 'Sign Up',
-  element: <SignUp />
+  element: <SignUp />,
+  guestOnly: true,
 }, {
   path: '/auth/forgot-password',
   name: 'Forgot Password',
-  element: <ForgotPassword />
+  element: <ForgotPassword />,
+  guestOnly: true,
 }, {
   path: '/auth/reset-password',
   name: 'Reset Password',
-  element: <ResetPassword />
+  element: <ResetPassword />,
 }];
 
-// export const instructorRoutes = [{
-//   path: '/instructor/dashboard',
-//   name: 'Dashboard',
-//   isNested: false,
-//   element: <InstructorDashboard />
-// }, {
-//   path: '/instructor/courses',
-//   name: 'My Courses',
-//   isNested: false,
-//   element: <InstructorMyCourses />
-// }, {
-//   path: '/instructor/students',
-//   name: 'My Students',
-//   isNested: false,
-//   element: <InstructorMyStudents />
-// }, {
-//   path: '/instructor/profile',
-//   name: 'My Profile',
-//   isNested: true,
-//   element: <InstructorAccount />
-// }, {
-//   path: '/instructor/settings',
-//   name: 'Settings',
-//   isNested: true,
-//   element: <AccountSettingsPage />
-// }, {
-//   path: '/instructor/earnings',
-//   name: 'Earnings',
-//   isNested: true,
-//   element: <InstructorEarnings />
-// }, {
-//   path: '/instructor/courses/create',
-//   name: 'Create Course',
-//   isNested: false,
-//   element: <InstructorManageCoursePage isEdit={false} />
-// }, {
-//   path: '/instructor/courses/edit/:id',
-//   name: 'Update Course',
-//   isNested: false,
-//   element: <InstructorManageCoursePage isEdit={true} />
-// }, {
-//   path: '/instructor/courses/:id',
-//   name: 'Update Course',
-//   isNested: false,
-//   element: <InstructorCourseDetail />
-// }];
+export const instructorRoutes = [{
+  path: '/instructor/dashboard',
+  name: 'Dashboard',
+  isNested: false,
+  element: <InstructorDashboard />
+}, {
+  path: '/instructor/courses',
+  name: 'My Courses',
+  isNested: false,
+  // element: <InstructorMyCourses />
+}, {
+  path: '/instructor/students',
+  name: 'My Students',
+  isNested: false,
+  // element: <InstructorMyStudents />
+}, {
+  path: '/instructor/profile',
+  name: 'My Profile',
+  isNested: true,
+  // element: <InstructorAccount />
+}, {
+  path: '/instructor/settings',
+  name: 'Settings',
+  isNested: true,
+  // element: <AccountSettingsPage />
+}, {
+  path: '/instructor/earnings',
+  name: 'Earnings',
+  isNested: true,
+  // element: <InstructorEarnings />
+}, {
+  path: '/instructor/courses/create',
+  name: 'Create Course',
+  isNested: false,
+  // element: <InstructorManageCoursePage isEdit={false} />
+}, {
+  path: '/instructor/courses/edit/:id',
+  name: 'Update Course',
+  isNested: false,
+  // element: <InstructorManageCoursePage isEdit={true} />
+}, {
+  path: '/instructor/courses/:id',
+  name: 'Update Course',
+  isNested: false,
+  // element: <InstructorCourseDetail />
+}];
 
-// export const studentRoutes = [{
-//   path: '/student/courses',
-//   name: 'My Courses',
-//   isNested: true,
-//   element: <StudentMyCourses />
-// }, {
-//   path: '/student/cart',
-//   name: 'My Cart',
-//   isNested: false,
-//   element: <CartDetails />
-// }, {
-//   path: '/student/wishlist',
-//   name: 'Wishlist',
-//   isNested: false,
-//   element: <WishList />
-// },{
-//    path: '/student/courses/:courseId',
-//   name: 'Learning Course',
-//   isNested: false,
-//   element: <LearningCourse />
-// },{
-//   path: '/student/checkout',
-//   name: 'Checkout',
-//   isNested: false,
-//   element: <Checkout />
-// }, {
-//   path: '/student/profile',
-//   name: 'Profile',
-//   isNested: true,
-//   element: <StudentAccount />
-// }, {
-//   path: '/student/orders',
-//   name: 'My Orders',
-//   isNested: true,
-//   element: <OrderListPage />
-// }, {
-//   path: '/student/orders/:id',
-//   name: 'Order Detail',
-//   isNested: true,
-//   element: <OrderDetailPage />
-// }, {
-//   path: '/student/payment-success',
-//   name: 'Payment Success',
-//   isNested: false,
-//   element: <PaymentSuccess />
-// }, {
-//   path: '/student/payment-failed',
-//   name: 'Failed',
-//   isNested: false,
-//   element: <PaymentFailed />
-// }, {
-//   path: '/student/payment-info',
-//   name: 'Payment Info',
-//   isNested: true,
-//   element: null
-// }, {
-//   path: '/student/dashboard',
-//   name: 'dashboard',
-//   isNested: true,
-//   element: <StudentDashboard />
-// }, {
-//   path: '/student/settings',
-//   name: 'Settings',
-//   isNested: true,
-//   element: <AccountSettingsPage />
-// }, {
-//   path: '/student/wish-list',
-//   name: 'Wish List',
-//   isNested: true,
-//   element: null
-// }, {
-//   path: '/student/deactivate-account',
-//   name: 'Deactivate Account',
-//   isNested: true,
-//   element: null
-// }];
+export const studentRoutes = [{
+  path: '/student/courses',
+  name: 'My Courses',
+  isNested: true,
+  // element: <StudentMyCourses />
+}, {
+  path: '/student/cart',
+  name: 'My Cart',
+  isNested: false,
+  // element: <CartDetails />
+}, {
+  path: '/student/wishlist',
+  name: 'Wishlist',
+  isNested: false,
+  // element: <WishList />
+},{
+   path: '/student/courses/:courseId',
+  name: 'Learning Course',
+  isNested: false,
+  // element: <LearningCourse />
+},{
+  path: '/student/checkout',
+  name: 'Checkout',
+  isNested: false,
+  // element: <Checkout />
+}, {
+  path: '/student/profile',
+  name: 'Profile',
+  isNested: true,
+  // element: <StudentAccount />
+}, {
+  path: '/student/orders',
+  name: 'My Orders',
+  isNested: true,
+  // element: <OrderListPage />
+}, {
+  path: '/student/orders/:id',
+  name: 'Order Detail',
+  isNested: true,
+  // element: <OrderDetailPage />
+}, {
+  path: '/student/payment-success',
+  name: 'Payment Success',
+  isNested: false,
+  // element: <PaymentSuccess />
+}, {
+  path: '/student/payment-failed',
+  name: 'Failed',
+  isNested: false,
+  // element: <PaymentFailed />
+}, {
+  path: '/student/payment-info',
+  name: 'Payment Info',
+  isNested: true,
+  element: null
+}, {
+  path: '/student/dashboard',
+  name: 'dashboard',
+  isNested: true,
+  // element: <StudentDashboard />
+}, {
+  path: '/student/settings',
+  name: 'Settings',
+  isNested: true,
+  // element: <AccountSettingsPage />
+}, {
+  path: '/student/wish-list',
+  name: 'Wish List',
+  isNested: true,
+  // element: null
+}, {
+  path: '/student/deactivate-account',
+  name: 'Deactivate Account',
+  isNested: true,
+  // element: null
+}];
