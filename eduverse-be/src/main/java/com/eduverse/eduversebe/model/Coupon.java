@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +24,11 @@ public class Coupon extends BaseEntity {
     private String description;
     private Integer discountPercent;
 
-    private LocalDateTime startDate;
-    private LocalDateTime expiryDate;
+    private Instant startDate;
+    private Instant expiryDate;
 
     @Builder.Default
-    private boolean isActive = true;
+    private Boolean isActive = true;
 
     @Builder.Default
     private List<String> usersUsed = new ArrayList<>();

@@ -1,10 +1,10 @@
 // import ChatbotWidget from "../app/chatbot";
-// import ProtectedRoute from "../components/ProtectedRoute";
+import ProtectedRoute from "../components/ProtectedRoute";
 import ScrollToTop from "../components/ScrollToTop";
 import RoleBasedLayout from "../layouts/RoleBasedLayout";
 
 // import { publicRoutes, authRoutes, studentRoutes, instructorRoutes } from "./index";
-import { publicRoutes, authRoutes } from "./index";
+import { publicRoutes, studentRoutes, authRoutes } from "./index";
 
 import { useSelector } from "react-redux";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -47,7 +47,7 @@ const AppRouter = props => {
         </Route> */}
 
         {/* STUDENT ROUTES */}
-        {/* <Route element={<ProtectedRoute allowedRole={"student"} />}>
+        <Route element={<ProtectedRoute allowedRole={"student"} />}>
           {(studentRoutes || []).map((route, idx) => (
             <Route
               key={idx + route.name}
@@ -59,7 +59,7 @@ const AppRouter = props => {
               }
             />
           ))}
-        </Route> */}
+        </Route>
 
         {/* AUTH ROUTES */}
         {(authRoutes || []).map((route, idx) =>

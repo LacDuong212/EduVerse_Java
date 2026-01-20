@@ -7,7 +7,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -32,7 +32,7 @@ public class Order extends BaseEntity {
     @Builder.Default
     private OrderStatus status = OrderStatus.pending;
 
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
     @Getter
     @Setter

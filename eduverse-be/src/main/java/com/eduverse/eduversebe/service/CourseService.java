@@ -2,10 +2,7 @@ package com.eduverse.eduversebe.service;
 
 import com.eduverse.eduversebe.common.globalEnums.CourseStatus;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
-import com.eduverse.eduversebe.dto.respone.CourseFilterResponse;
-import com.eduverse.eduversebe.dto.respone.CourseResponse;
-import com.eduverse.eduversebe.dto.respone.HomeContentResponse;
-import com.eduverse.eduversebe.dto.respone.PageResponse;
+import com.eduverse.eduversebe.dto.respone.*;
 import com.eduverse.eduversebe.mapper.CourseMapper;
 import com.eduverse.eduversebe.model.Category;
 import com.eduverse.eduversebe.model.Course;
@@ -13,10 +10,13 @@ import com.eduverse.eduversebe.repository.CategoryRepository;
 import com.eduverse.eduversebe.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
+import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +34,51 @@ public class CourseService {
     private final CategoryRepository categoryRepository;
     private final CourseMapper courseMapper;
     private final MongoTemplate mongoTemplate;
+
+    public CourseStatsResponse getCourseStats() {
+        Criteria criteria = Criteria.where("isPrivate").is(false)
+                .and("isDeleted").is(false)
+                .and("status").is("Live");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.group()
+                        .count().as("count")
+                        .sum("studentsEnrolled").as("totalLearners")
+                        .sum("duration").as("totalDurationSeconds")
+        );
+
+        AggregationResults<Document> results = mongoTemplate.aggregate(aggregation, "courses", org.bson.Document.class);
+        org.bson.Document statsDoc = results.getUniqueMappedResult();
+
+        long totalCourses = 0;
+        long totalLearners = 0;
+        double totalDurationSeconds = 0;
+
+        if (statsDoc != null) {
+            Number countNum = statsDoc.get("count", Number.class);
+            totalCourses = (countNum != null) ? countNum.longValue() : 0;
+
+            Number learnersNum = statsDoc.get("totalLearners", Number.class);
+            totalLearners = (learnersNum != null) ? learnersNum.longValue() : 0;
+
+            Number durationNum = statsDoc.get("totalDurationSeconds", Number.class);
+            totalDurationSeconds = (durationNum != null) ? durationNum.doubleValue() : 0.0;
+        }
+
+        Query query = new Query(criteria);
+        List<Object> distinctInstructors = mongoTemplate.findDistinct(query, "instructor.ref", Course.class, Object.class);
+        long totalInstructors = distinctInstructors.size();
+
+        double totalHours = totalDurationSeconds / 3600.0;
+
+        return CourseStatsResponse.builder()
+                .totalCourses(totalCourses)
+                .totalLearners(totalLearners)
+                .totalHours(totalHours)
+                .totalInstructors(totalInstructors)
+                .build();
+    }
 
     public HomeContentResponse getHomeCourses() {
 
@@ -107,7 +151,7 @@ public class CourseService {
         query.addCriteria(Criteria.where("status").is(CourseStatus.Live));
 
         if (hasText(request.getCategory())) {
-            query.addCriteria(Criteria.where("categoryId").is(request.getCategory()));
+            query.addCriteria(Criteria.where("category").is(new ObjectId(request.getCategory())));
         }
         if (hasText(request.getSubCategory())) {
             query.addCriteria(Criteria.where("subCategory").is(request.getSubCategory()));

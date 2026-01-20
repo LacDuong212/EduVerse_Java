@@ -8,7 +8,7 @@ export const useSocketContext = () => {
   return useContext(SocketContext);
 };
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
 export const SocketContextProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
@@ -18,18 +18,22 @@ export const SocketContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (userData && userData._id) {
-      const newSocket = io(backendUrl, {
+      const newSocket = io(SOCKET_URL, {
         transports: ['polling', 'websocket'],
         withCredentials: true,
 
         reconnection: true,
         reconnectionAttempts: 5,
+
+        query: {
+            userId: userData._id
+        }
       });
 
       setSocket(newSocket);
 
       newSocket.on("connect", () => {
-        console.log("✅ Global Socket Connected:", newSocket.id);
+        console.log("Global Socket Connected:", newSocket.id);
         newSocket.emit("newUser", userData._id);
       });
 
@@ -37,20 +41,17 @@ export const SocketContextProvider = ({ children }) => {
         setOnlineUsers(users);
       });
 
-      // Cleanup: Ngắt kết nối khi user logout hoặc component unmount
       return () => {
         newSocket.close();
         setSocket(null);
       };
     } else {
-      // Nếu không có user (Logout), đóng socket nếu đang mở
       if (socket) {
         socket.close();
         setSocket(null);
       }
     }
-  }, [userData]); // Chạy lại mỗi khi userData thay đổi (Login/Logout)
-
+  }, [userData]);
   return (
     <SocketContext.Provider value={{ socket, onlineUsers }}>
       {children}
