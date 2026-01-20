@@ -29,7 +29,34 @@ public enum ErrorCodes {
     OTP_EXPIRED(11006, "OTP has expired", BAD_REQUEST),
     LOGIN_FAILED(11007, "Invalid email or password", UNAUTHORIZED),
     USER_IS_BLOCKED(11008, "Your account has been blocked. Please contact the administrator.", FORBIDDEN),
-    USER_NOT_VERIFIED(11009, "Please verify your email first", UNAUTHORIZED);
+    USER_NOT_VERIFIED(11009, "Please verify your email first", UNAUTHORIZED),
+
+    //--Instructor (12xxx)
+    INSTRUCTOR_ALREADY_EXISTS(12000, "You are already registered as an instructor.", BAD_REQUEST),
+    INSTRUCTOR_NOT_FOUND(12001, "Instructor not found for this user.", NOT_FOUND),
+
+    //--Notification (13xxx)
+    NOTIFICATION_NOT_FOUND(13000, "Notification not found for this user.", NOT_FOUND),
+
+    //--Course (14xxx)
+    COURSE_NOT_FOUND(14000, "Course not found for this user.", NOT_FOUND),
+
+    //--Cart (15xxx)
+
+    //--Wishlist (16xxx)
+    COURSE_ALREADY_IN_WISHLIST(16000, "Course already in Wishlist.", BAD_REQUEST),
+
+    //--Cart (17xxx)
+    COURSE_ALREADY_IN_CART(17000, "Course already in Cart", BAD_REQUEST),
+    YOU_ALREADY_OWN_THIS_COURSE(17001, "You already own this course", CONFLICT),
+    COURSE_IN_ACTIVE_ORDER(17002, "This course is already in your active order", CONFLICT),
+
+    //--Coupon (18xxx)
+    COUPON_NOT_FOUND(18000, "Invalid coupon code!", NOT_FOUND),
+    COUPON_NOT_ACTIVE_YET(18001, "This coupon is not active yet.", BAD_REQUEST),
+    COUPON_EXPIRED(18002, "The coupon code has expired.", BAD_REQUEST),
+    COUPON_ALREADY_USED(18003, "You have already used this code!", BAD_REQUEST),
+
     ;
 
     int responseCode;

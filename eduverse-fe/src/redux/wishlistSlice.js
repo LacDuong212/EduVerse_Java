@@ -7,8 +7,8 @@ export const fetchWishlist = createAsyncThunk(
   "wishlist/fetchWishlist",
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/${userId}`, { withCredentials: true });
-      return response.data.data;
+      const response = await axios.get(API_URL, { withCredentials: true });
+      return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -19,22 +19,18 @@ export const addToWishlist = createAsyncThunk(
   "wishlist/addToWishlist",
   async ({ userId, course }, { rejectWithValue }) => {
     try {
-      const courseIdToSend = course._id;
+      const courseId = course.id || course._id;
 
-      const response = await axios.post(
-        `${API_URL}/add`, 
-        {
-          userId,
-          courseId: courseIdToSend
-        },
+      await axios.post(
+        API_URL, 
+        { courseId },
         { withCredentials: true } 
       );
 
-      const newItem = response.data.data;
-
       return {
-        ...newItem,
-        courseId: newItem.courseId._id ? newItem.courseId : course
+        id: "temp-id-" + Date.now(),
+        addedAt: new Date().toISOString(),
+        course: course
       };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -44,10 +40,9 @@ export const addToWishlist = createAsyncThunk(
 
 export const removeFromWishlist = createAsyncThunk(
   "wishlist/removeFromWishlist",
-  async ({ userId, courseId }, { rejectWithValue }) => {
+  async ({ courseId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/remove`, {
-        data: { userId, courseId },
+      await axios.delete(`${API_URL}/${courseId}`, {
         withCredentials: true 
       });
 
@@ -73,18 +68,31 @@ const wishlistSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchWishlist.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(fetchWishlist.fulfilled, (state, action) => {
         state.items = action.payload;
         state.status = "succeeded";
       })
+      .addCase(fetchWishlist.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
 
+      // --- Add ---
       .addCase(addToWishlist.fulfilled, (state, action) => {
-        state.items.push(action.payload);
+        state.items.unshift(action.payload);
         state.status = "succeeded";
       })
+
+      // --- Remove ---
       .addCase(removeFromWishlist.fulfilled, (state, action) => {
         state.items = state.items.filter(
-          (item) => item.courseId._id !== action.payload
+          (item) => {
+             const currentId = item.course?.id || item.course?._id;
+             return currentId !== action.payload;
+          }
         );
       });
   },

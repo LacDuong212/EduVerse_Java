@@ -3,10 +3,7 @@ package com.eduverse.eduversebe.controller;
 import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
-import com.eduverse.eduversebe.dto.respone.CourseFilterResponse;
-import com.eduverse.eduversebe.dto.respone.CourseResponse;
-import com.eduverse.eduversebe.dto.respone.HomeContentResponse;
-import com.eduverse.eduversebe.dto.respone.PageResponse;
+import com.eduverse.eduversebe.dto.respone.*;
 import com.eduverse.eduversebe.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class CourseController {
 
     private final CourseService courseService;
+
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<CourseStatsResponse>> getCourseStats() {
+        CourseStatsResponse stats = courseService.getCourseStats();
+        return ResponseEntity.ok(ApiResponse.success(SuccessCodes.GET_COURSE_STATS_SUCCESS ,stats));
+    }
 
     @GetMapping("/home")
     public ResponseEntity<ApiResponse<HomeContentResponse>> getHomeCourses() {

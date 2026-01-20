@@ -7,10 +7,9 @@ import { Link } from 'react-router-dom';
 
 import { useSocketContext } from '@/context/SocketContext';
 
-// URL Backend
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-// --- Helper: Format thời gian ---
+//--- Helper: Format time
 const formatTimeAgo = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -25,16 +24,12 @@ const formatTimeAgo = (dateString) => {
   return date.toLocaleDateString();
 };
 
-// --- Component Item (Style giống NotificationCard) ---
 const NotificationItem = ({ noti }) => {
-  // Logic hiển thị Avatar: Ảnh (nếu có) hoặc Icon (nếu không)
   const renderAvatar = () => {
-    // Nếu data có ảnh người gửi, ưu tiên hiển thị ảnh
     if (noti.sender?.avatar) {
       return <img className="avatar-img rounded-circle" src={noti.sender.avatar} alt="avatar" />;
     }
 
-    // Nếu không, hiển thị Icon trạng thái
     let Icon = BsInfoCircle;
     let colorClass = "text-primary";
     let bgClass = "bg-primary bg-opacity-10";
@@ -103,9 +98,13 @@ const NotificationDropdown = ({ className }) => {
     if (userData?._id) {
       const fetchNotifications = async () => {
         try {
-          const res = await axios.get(`${BACKEND_URL}/api/notifications/${userData._id}`);
-          setNotifications(res.data);
-          setUnreadCount(res.data.filter(n => !n.isRead).length);
+          const res = await axios.get(`${BACKEND_URL}/api/notifications`, {
+            withCredentials: true 
+          });
+          
+          const data = res.data.result || [];
+          setNotifications(data);
+          setUnreadCount(data.filter(n => !n.isRead).length);
         } catch (err) {
           console.error("Error loading notification:", err);
         }
@@ -126,13 +125,16 @@ const NotificationDropdown = ({ className }) => {
     };
   }, [socket]);
 
-  // 3. Xử lý Mark Read
   const handleToggle = async (isOpen) => {
-    if (isOpen && unreadCount > 0 && userData?._id) {
+    if (isOpen && unreadCount > 0) {
       try {
         setUnreadCount(0);
-        await axios.put(`${BACKEND_URL}/api/notifications/mark-all-read/${userData._id}`);
         setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+
+        await axios.put(`${BACKEND_URL}/api/notifications/read-all`, {}, {
+            withCredentials: true
+        });
+        
       } catch (err) {
         console.error("Failed to mark as read:", err);
       }
@@ -141,14 +143,13 @@ const NotificationDropdown = ({ className }) => {
 
   const handleClearAll = async (e) => {
     e.preventDefault();
-
-    if (!userData?._id) return;
-
     try {
       setNotifications([]);
       setUnreadCount(0);
 
-      await axios.delete(`${BACKEND_URL}/api/notifications/clear-all/${userData._id}`);
+      await axios.delete(`${BACKEND_URL}/api/notifications`, {
+        withCredentials: true
+      });
 
       console.log("All notifications have been deleted!");
     } catch (err) {

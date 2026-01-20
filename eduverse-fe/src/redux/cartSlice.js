@@ -7,8 +7,8 @@ export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/`, { withCredentials: true });
-      return response.data.cart;
+      const response = await axios.get(`${API_URL}`, { withCredentials: true });
+      return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -20,7 +20,7 @@ export const fetchCartCount = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_URL}/count`, { withCredentials: true });
-      return response.data.count;
+      return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -32,11 +32,11 @@ export const addToCart = createAsyncThunk(
   async ({ courseId }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_URL}/add`, 
+        `${API_URL}`, 
         { courseId }, 
         { withCredentials: true }
       );
-      return response.data.cart; 
+      return response.data.result; 
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -47,11 +47,11 @@ export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async ({ courseId }, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(`${API_URL}/remove`, {
-        data: { courseId },
-        withCredentials: true 
-      });
-      return response.data.cart;
+      const response = await axios.delete(
+        `${API_URL}/${courseId}`,
+        { withCredentials: true }
+      );
+      return response.data.result;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -62,7 +62,8 @@ export const clearCart = createAsyncThunk(
   "cart/clearCartApi",
   async (_, { rejectWithValue }) => {
     try {
-      await axios.delete(`${API_URL}/clear`, { withCredentials: true });
+      await axios.delete(`${API_URL}`,
+        { withCredentials: true });
       return [];
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

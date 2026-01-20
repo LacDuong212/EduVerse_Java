@@ -44,7 +44,7 @@ export default function SignInPage() {
                 <p className="small position-absolute top-50 start-50 translate-middle bg-body px-5">Or</p>
               </div>
               <Col xxl={12} className="d-grid">
-                <a href={`${backendUrl}/api/auth/google${location.search}`} className="btn bg-google mb-2 mb-xxl-0">
+                <a href={`${backendUrl}/oauth2/authorization/google${location.search}`} className="btn bg-google mb-2 mb-xxl-0">
                   <FaGoogle className="text-white me-2" />
                   Sign in with Google
                 </a>
