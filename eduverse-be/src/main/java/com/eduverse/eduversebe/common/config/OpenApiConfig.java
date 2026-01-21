@@ -29,4 +29,14 @@ public class OpenApiConfig {
                 .pathsToMatch("/api/auth/**")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi instructorApi() {
+        return GroupedOpenApi.builder()
+                .group("instructor")
+                .pathsToMatch(
+                        "/api/instructor/**",
+                        "api/instructors/**"
+                ).build();
+    }
 }

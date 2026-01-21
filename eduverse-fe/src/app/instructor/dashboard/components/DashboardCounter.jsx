@@ -55,16 +55,23 @@ const DashboardCounter = ({ counterData = {} }) => {
     variant: 'info',
     isDecimal: false
   }, {
+    count: counterData?.totalReviews || 0,
+    title: 'Total Reviews',
+    icon: RiBillFill,
+    //suffix: 'k',
+    variant: 'purple',
+    isDecimal: false
+  }, {
     count: counterData?.averageRating || 0.0,
-    title: 'Average Rating',
+    title: 'Rating',
     icon: FaStar,
     variant: 'warning',
     isDecimal: true
   }];
 
   return (
-    <Row className="g-4">
-      {counters.map((item, idx) => <Col sm={6} lg={3} key={idx}>
+    <Row className="d-flex g-4 justify-content-center">
+      {counters.map((item, idx) => <Col sm={6} lg={4} key={idx}>
         <CounterCard {...item} />
       </Col>)}
     </Row>

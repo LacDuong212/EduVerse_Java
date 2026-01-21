@@ -14,7 +14,6 @@ import com.eduverse.eduversebe.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service

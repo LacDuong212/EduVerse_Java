@@ -29,7 +29,8 @@ public enum ErrorCodes {
     OTP_EXPIRED(11006, "OTP has expired", BAD_REQUEST),
     LOGIN_FAILED(11007, "Invalid email or password", UNAUTHORIZED),
     USER_IS_BLOCKED(11008, "Your account has been blocked. Please contact the administrator.", FORBIDDEN),
-    USER_NOT_VERIFIED(11009, "Please verify your email first", UNAUTHORIZED);
+    USER_NOT_VERIFIED(11009, "Please verify your email first", UNAUTHORIZED),
+    INSTRUCTOR_NOT_FOUND(11010, "Instructor not found", NOT_FOUND),
     ;
 
     int responseCode;

@@ -3,12 +3,11 @@ import ReactApexChart from 'react-apexcharts';
 import { Card, CardHeader, CardBody, Col, Row } from 'react-bootstrap';
 import { BsArrowUp, BsArrowDown, BsDash } from 'react-icons/bs';
 
-
 const EarningsChart = ({ col = 6, earningsData = [] }) => {
   const values = earningsData.map(item => item.value);
 
   const categories = earningsData.map(item => {
-    const [year, month] = item.name.split('-');
+    const [year, month] = item.period.split('-');
     return `${month}/${year}`;
   });
 

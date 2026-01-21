@@ -29,9 +29,15 @@ public enum SuccessCodes {
     GET_HOME_COURSE_SUCCESS(22000, "Get home course successfully", OK),
     GET_ALL_COURSE_SUCCESS(22001, "Get all course successfully", OK),
     GET_COURSE_FILTER_SUCCESS(22002, "Get course filter successfully", OK),
+    GET_TOP_5_COURSES_SUCCESS(22003, "Get top 5 courses successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
+
+    //--Instructor (24xxx)
+    GET_INSTRUCTOR_PROFILE_SUCCESS(24000, "Get instructor profile successfully", OK),
+    GET_INSTRUCTOR_STATS_SUCCESS(24001, "Get stats successfully", OK),
+    GET_MONTHLY_EARNING_SUCCESS(24002, "Get monthly earning successfully", OK),
 
     ;
 
