@@ -30,6 +30,7 @@ public enum SuccessCodes {
     GET_HOME_COURSE_SUCCESS(22001, "Get home course successfully", OK),
     GET_ALL_COURSE_SUCCESS(22002, "Get all course successfully", OK),
     GET_COURSE_FILTER_SUCCESS(22003, "Get course filter successfully", OK),
+    GET_TOP_5_COURSES_SUCCESS(22004, "Get top 5 courses successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
