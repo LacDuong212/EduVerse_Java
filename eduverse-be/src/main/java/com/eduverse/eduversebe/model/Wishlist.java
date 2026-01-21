@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -22,5 +22,5 @@ public class Wishlist extends BaseEntity {
 
     private String userId;
     private String courseId;
-    private LocalDateTime addedAt;
+    private Instant addedAt;
 }

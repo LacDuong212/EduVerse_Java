@@ -26,18 +26,42 @@ public enum SuccessCodes {
 
 
     //--Course (22xxx)
-    GET_HOME_COURSE_SUCCESS(22000, "Get home course successfully", OK),
-    GET_ALL_COURSE_SUCCESS(22001, "Get all course successfully", OK),
-    GET_COURSE_FILTER_SUCCESS(22002, "Get course filter successfully", OK),
-    GET_TOP_5_COURSES_SUCCESS(22003, "Get top 5 courses successfully", OK),
+    GET_COURSE_STATS_SUCCESS(22000, "Get course stats successfully", OK),
+    GET_HOME_COURSE_SUCCESS(22001, "Get home course successfully", OK),
+    GET_ALL_COURSE_SUCCESS(22002, "Get all course successfully", OK),
+    GET_COURSE_FILTER_SUCCESS(22003, "Get course filter successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
 
-    //--Instructor (24xxx)
-    GET_INSTRUCTOR_PROFILE_SUCCESS(24000, "Get instructor profile successfully", OK),
-    GET_INSTRUCTOR_STATS_SUCCESS(24001, "Get stats successfully", OK),
-    GET_MONTHLY_EARNING_SUCCESS(24002, "Get monthly earning successfully", OK),
+    //--Notification (24xxx)
+    GET_USER_NOTIFICATIONS_SUCCESS(24000, "Get user notifications successfully", OK),
+    ALL_NOTIFICATIONS_MARKED(24001, "All notifications marked as read", OK),
+    NOTIFICATION_MARKED(24002, "Notification marked as read", OK),
+    ALL_NOTIFICATIONS_DELETED(24003, "All notifications deleted", OK),
+
+    //--Wishlist (25xxx)
+    ADDED_TO_WISHLIST(25000, "Added to wishlist successfully", CREATED),
+    REMOVED_FROM_WISHLIST(25001, "Removed from wishlist successfully", OK),
+    GET_WISHLIST_SUCCESS(25002, "Get wishlist successfully", OK),
+    CHECK_WISHLIST_SUCCESS(25003, "Check wishlist status successfully", OK),
+    COUNT_WISHLIST_SUCCESS(24004, "Count wishlist successfully", OK),
+
+    //--Cart (26xxx)
+    GET_CART_SUCCESS(26000, "Get cart successfully", OK),
+    ADDED_TO_CART(26001, "Add cart successfully", OK),
+    REMOVED_FROM_CART(26002, "Remove cart successfully", OK),
+    CLEAR_CART_SUCCESS(26003, "Clear cart successfully", OK),
+    GET_CART_COUNT_SUCCESS(26004, "Get cart count successfully", OK),
+
+    //--Coupon(27xxx)
+    GET_COUPONS_SUCCESS(27000, "Get coupons successfully", OK),
+    APPLY_COUPONS_SUCCESS(27001, "Apply coupons successfully", OK),
+
+    //--Instructor (28xxx)
+    GET_INSTRUCTOR_PROFILE_SUCCESS(28000, "Get instructor profile successfully", OK),
+    GET_INSTRUCTOR_STATS_SUCCESS(28001, "Get stats successfully", OK),
+    GET_MONTHLY_EARNING_SUCCESS(28002, "Get monthly earning successfully", OK),
 
     ;
 

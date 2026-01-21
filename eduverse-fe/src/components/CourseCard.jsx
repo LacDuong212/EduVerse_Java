@@ -26,10 +26,10 @@ const CourseCard = ({ course }) => {
 
   if (!course) return null;
 
-  const currentCourseId = course._id || course.courseId || course.id;
+  const currentCourseId = course.id || course._id;
 
   const isWishlisted = wishlistItems.some((item) => {
-    const itemCourseId = item.courseId?._id || item.courseId;
+    const itemCourseId = item.course?.id || item.course?._id;
 
     return itemCourseId?.toString() === currentCourseId?.toString();
   });
@@ -56,16 +56,18 @@ const CourseCard = ({ course }) => {
     try {
       if (isWishlisted) {
         await dispatch(removeFromWishlist({
-          userId: userData._id,
           courseId: currentCourseId
         })).unwrap();
 
         toast.success("Removed from wishlist");
       } else {
-        const coursePayload = { ...course, _id: currentCourseId };
+        const coursePayload = { 
+            ...course, 
+            id: currentCourseId, 
+            _id: currentCourseId 
+        };
 
         await dispatch(addToWishlist({
-          userId: userData._id,
           course: coursePayload
         })).unwrap();
 

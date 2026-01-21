@@ -16,11 +16,11 @@ import InstructorDashboard from "../app/instructor/dashboard";
 // import InstructorMyStudents from "../app/instructor/my-students";
 
 // STUDENT
-// const Checkout = lazy(() => import('@/app/shop/checkout/page'));
+const Checkout = lazy(() => import('@/app/shop/checkout/page'));
 // const PaymentSuccess = lazy(() => import('@/app/shop/payment-result/success/page'));
 // const PaymentFailed = lazy(() => import('@/app/shop/payment-result/failed/page'));
-// import CartDetails from "../app/shop/cart/page";
-// import WishList from "../app/shop/wishlist/page";
+import CartDetails from "../app/shop/cart/page";
+import WishList from "../app/shop/wishlist/page";
 // import StudentMyCourses from '../app/student/my-courses';
 // import StudentAccount from '../app/student/account';
 // import LearningCourse from '../app/student/learning/page';
@@ -33,7 +33,7 @@ import InstructorDashboard from "../app/instructor/dashboard";
 // PUBLIC
 import HomePage from "../app/pages/home/page";
 import CoursesPage from "../app/pages/course/grid/page";
-// import BecomeInstructorPage from '../app/student/become-instructor';
+import BecomeInstructorPage from '../app/student/become-instructor';
 // import CourseDetails from "../app/pages/course/detail/page";
 // import InstructorDetailsPage from "../app/pages/instructors/detail";
 // import VideoPlayer from "../app/pages/course/video-player/page";
@@ -48,7 +48,7 @@ export const publicRoutes = [{
   path: '/courses',
   name: 'Courses',
   element: <CoursesPage />
-}]
+}
 //, {
 //   path: '/courses/:courseId/watch/:lectureId?',
 //   name: 'My Video Player',
@@ -71,11 +71,13 @@ export const publicRoutes = [{
 //   path: '/instructors/:id',
 //   name: 'Instructor Details',
 //   element: <InstructorDetailsPage />
-// }, {
-//   path: '/student/become-instructor',
-//   name: 'Become Instructor',
-//   element: <BecomeInstructorPage />
-// }, {
+// }
+, {
+  path: '/student/become-instructor',
+  name: 'Become Instructor',
+  element: <BecomeInstructorPage />
+}]
+//, {
 //   path: '/*',
 //   name: 'Not Found',
 //   element: <NotFoundPage />
@@ -150,78 +152,76 @@ export const instructorRoutes = [{
 }];
 
 export const studentRoutes = [{
-  path: '/student/courses',
-  name: 'My Courses',
-  isNested: true,
-  // element: <StudentMyCourses />
-}, {
+//   path: '/student/courses',
+//   name: 'My Courses',
+//   isNested: true,
+//   element: <StudentMyCourses />
+// }, {
   path: '/student/cart',
   name: 'My Cart',
   isNested: false,
-  // element: <CartDetails />
+  element: <CartDetails />
 }, {
   path: '/student/wishlist',
   name: 'Wishlist',
   isNested: false,
-  // element: <WishList />
-},{
-   path: '/student/courses/:courseId',
-  name: 'Learning Course',
-  isNested: false,
-  // element: <LearningCourse />
-},{
+  element: <WishList />
+},
+//,{
+//    path: '/student/courses/:courseId',
+//   name: 'Learning Course',
+//   isNested: false,
+//   element: <LearningCourse />
+// },
+{
   path: '/student/checkout',
   name: 'Checkout',
   isNested: false,
-  // element: <Checkout />
-}, {
-  path: '/student/profile',
-  name: 'Profile',
-  isNested: true,
-  // element: <StudentAccount />
-}, {
-  path: '/student/orders',
-  name: 'My Orders',
-  isNested: true,
-  // element: <OrderListPage />
-}, {
-  path: '/student/orders/:id',
-  name: 'Order Detail',
-  isNested: true,
-  // element: <OrderDetailPage />
-}, {
-  path: '/student/payment-success',
-  name: 'Payment Success',
-  isNested: false,
-  // element: <PaymentSuccess />
-}, {
-  path: '/student/payment-failed',
-  name: 'Failed',
-  isNested: false,
-  // element: <PaymentFailed />
-}, {
-  path: '/student/payment-info',
-  name: 'Payment Info',
-  isNested: true,
-  element: null
-}, {
-  path: '/student/dashboard',
-  name: 'dashboard',
-  isNested: true,
-  // element: <StudentDashboard />
-}, {
-  path: '/student/settings',
-  name: 'Settings',
-  isNested: true,
-  // element: <AccountSettingsPage />
-}, {
-  path: '/student/wish-list',
-  name: 'Wish List',
-  isNested: true,
-  // element: null
-}, {
-  path: '/student/deactivate-account',
-  name: 'Deactivate Account',
-  isNested: true,
-  // element: null
-}];
+  element: <Checkout />
+}]
+// , {
+//   path: '/student/profile',
+//   name: 'Profile',
+//   isNested: true,
+//   element: <StudentAccount />
+// }, {
+//   path: '/student/orders',
+//   name: 'My Orders',
+//   isNested: true,
+//   element: <OrderListPage />
+// }, {
+//   path: '/student/orders/:id',
+//   name: 'Order Detail',
+//   isNested: true,
+//   element: <OrderDetailPage />
+// }, {
+//   path: '/student/payment-success',
+//   name: 'Payment Success',
+//   isNested: false,
+//   element: <PaymentSuccess />
+// }, {
+//   path: '/student/payment-failed',
+//   name: 'Failed',
+//   isNested: false,
+//   element: <PaymentFailed />
+// }, {
+//   path: '/student/payment-info',
+//   name: 'Payment Info',
+//   isNested: true,
+//   element: null
+// }, {
+//   path: '/student/dashboard',
+//   name: 'dashboard',
+//   isNested: true,
+//   element: <StudentDashboard />
+// }, {
+//   path: '/student/settings',
+//   name: 'Settings',
+//   isNested: true,
+//   element: <AccountSettingsPage />
+// }, {
+//   path: '/student/deactivate-account',
+//   name: 'Deactivate Account',
+//   isNested: true,
+//   element: null
+// }];
