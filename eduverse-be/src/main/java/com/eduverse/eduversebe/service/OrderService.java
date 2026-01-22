@@ -14,14 +14,19 @@ import com.eduverse.eduversebe.repository.CartRepository;
 import com.eduverse.eduversebe.repository.CouponRepository;
 import com.eduverse.eduversebe.repository.CourseRepository;
 import com.eduverse.eduversebe.repository.OrderRepository;
+import com.eduverse.eduversebe.repository.projection.MonthlyEarningProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -163,5 +168,89 @@ public class OrderService {
         }
 
         throw new AppException(ErrorCodes.UNAUTHORIZED_ACCESS);
+    }
+
+    private List<com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse> fillMissingMonthsHelper(
+            List<MonthlyEarningProjection> raw,
+            Instant start,
+            Instant end
+    ) {
+        Map<YearMonth, Double> dataMap = raw.stream()
+                .collect(Collectors.toMap(
+                        p -> YearMonth.of(p.getYear(), p.getMonth()),
+                        MonthlyEarningProjection::getTotalEarning
+                ));
+
+        YearMonth startMonth = YearMonth.from(
+                start.atZone(ZoneOffset.UTC)
+        );
+        YearMonth endMonth = YearMonth.from(
+                end.atZone(ZoneOffset.UTC)
+        );
+
+        List<com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse> result = new ArrayList<>();
+        YearMonth cursor = startMonth;
+
+        while (!cursor.isAfter(endMonth)) {
+            result.add(com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse.builder()
+                    .period(cursor)
+                    .value(dataMap.getOrDefault(cursor, 0.0))
+                    .build());
+            cursor = cursor.plusMonths(1);
+        }
+
+        return result;
+    }
+
+    public List<com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse> getCoursesMonthlyEarningPast12Months(List<String> courseIds) {
+        Instant start = YearMonth
+                .now()
+                .minusMonths(11)
+                .atDay(1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+
+        Instant end = Instant.now();
+
+        return fillMissingMonthsHelper(
+                orderRepository.getCoursesMonthlyEarningFromRange(courseIds, start, end),
+                start,
+                end
+        );
+    }
+
+    public List<com.eduverse.eduversebe.dto.respone.CourseEarningDataResponse> getTop5EarningCoursesThisMonth(List<String> courseIds) {
+        if (courseIds.isEmpty()) {
+            return List.of();
+        }
+
+        int limit = Math.min(5, courseIds.size());
+
+        YearMonth now = YearMonth.now(ZoneOffset.UTC);
+
+        Instant startOfMonth = now
+                .atDay(1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+
+        Instant startOfNextMonth = now
+                .plusMonths(1)
+                .atDay(1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+
+        return orderRepository.getTopEarningCoursesThisMonth(courseIds, startOfMonth, startOfNextMonth, limit)
+                .stream()
+                .map(c -> com.eduverse.eduversebe.dto.respone.CourseEarningDataResponse.builder()
+                        .id(c.getCourseId())
+                        .title(c.getTitle())
+                        .totalEarning(c.getTotalEarning())
+                        .totalSales(c.getTotalSales())
+                        .build())
+                .toList();
+    }
+
+    public long countCompletedOrdersByCourseIds(List<String> courseIds) {
+        return OptionalLong.of(orderRepository.countCompletedOrdersByCourseIds(courseIds)).orElse(0L);
     }
 }

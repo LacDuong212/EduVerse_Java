@@ -31,6 +31,7 @@ public enum SuccessCodes {
     GET_ALL_COURSE_SUCCESS(22002, "Get all course successfully", OK),
     GET_COURSE_FILTER_SUCCESS(22003, "Get course filter successfully", OK),
     GET_RECOMMENDATION_SUCCESS(22004, "Get recommendation successfully", OK),
+    GET_TOP_5_COURSES_SUCCESS(22005, "Get top 5 courses successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
@@ -67,6 +68,12 @@ public enum SuccessCodes {
 
     //--Payment (29xxx)
     CREATE_PAYMENT_SUCCESS(28004, "Create payment successfully", CREATED),
+
+
+    //--Instructor (30xxx)
+    GET_INSTRUCTOR_PROFILE_SUCCESS(30000, "Get instructor profile successfully", OK),
+    GET_INSTRUCTOR_STATS_SUCCESS(30001, "Get stats successfully", OK),
+    GET_MONTHLY_EARNING_SUCCESS(30002, "Get monthly earning successfully", OK),
 
     ;
 

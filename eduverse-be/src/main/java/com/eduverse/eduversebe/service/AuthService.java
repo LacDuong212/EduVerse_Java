@@ -19,7 +19,7 @@ import java.util.Optional;
 @Slf4j
 public class AuthService {
 
-    private final UserRepository userRepository;;
+    private final UserRepository userRepository;
     private final PasswordEncoder  passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;

@@ -9,7 +9,5 @@ import java.util.Optional;
 @Repository
 public interface InstructorRepository extends MongoRepository<Instructor, String> {
 
-    Optional<Instructor> findByUserId(String userId);
-
-    boolean existsByUserId(String userId);
+    Optional<Instructor> findByUser(String userId);
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,8 +20,8 @@ import java.util.List;
 @Document(collection = "instructors")
 public class Instructor extends BaseEntity {
 
-    @Field("user")
-    private String userId;
+    @Field(targetType = FieldType.OBJECT_ID)
+    private String user;
 
     @Builder.Default
     private Stats stats = new Stats();
