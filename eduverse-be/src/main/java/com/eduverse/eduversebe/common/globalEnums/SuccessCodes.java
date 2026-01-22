@@ -30,6 +30,7 @@ public enum SuccessCodes {
     GET_HOME_COURSE_SUCCESS(22001, "Get home course successfully", OK),
     GET_ALL_COURSE_SUCCESS(22002, "Get all course successfully", OK),
     GET_COURSE_FILTER_SUCCESS(22003, "Get course filter successfully", OK),
+    GET_RECOMMENDATION_SUCCESS(22004, "Get recommendation successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
@@ -57,6 +58,16 @@ public enum SuccessCodes {
     //--Coupon(27xxx)
     GET_COUPONS_SUCCESS(27000, "Get coupons successfully", OK),
     APPLY_COUPONS_SUCCESS(27001, "Apply coupons successfully", OK),
+
+    //--Order(28xxx)
+    GET_ORDERS_SUCCESS(28000, "Get orders successfully", OK),
+    GET_ORDER_BY_ID_SUCCESS(28001, "Get order by id successfully", OK),
+    CREATE_ORDER_SUCCESS(28002, "Create order successfully", CREATED),
+    UPDATE_ORDER_SUCCESS(28003, "Update order successfully", OK),
+
+    //--Payment (29xxx)
+    CREATE_PAYMENT_SUCCESS(28004, "Create payment successfully", CREATED),
+
     ;
 
     int responseCode;

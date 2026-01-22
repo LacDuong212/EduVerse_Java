@@ -3,10 +3,13 @@ package com.eduverse.eduversebe.controller;
 import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
-import com.eduverse.eduversebe.dto.respone.*;
+import com.eduverse.eduversebe.dto.response.*;
+import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.CourseService;
+import com.eduverse.eduversebe.service.RecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CourseController {
 
     private final CourseService courseService;
+    private final RecommendationService recommendationService;
 
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<CourseStatsResponse>> getCourseStats() {
@@ -31,6 +35,19 @@ public class CourseController {
         HomeContentResponse data = courseService.getHomeCourses();
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCodes.GET_HOME_COURSE_SUCCESS, data));
+    }
+
+    @GetMapping("/recommendations")
+    public ResponseEntity<ApiResponse<RecommendationResponse>> getRecommendedCourses(
+            @AuthenticationPrincipal User user
+    ) {
+        // Lấy ID user từ token (nếu user chưa login thì user sẽ là null)
+        String userId = (user != null) ? user.getId() : null;
+
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_RECOMMENDATION_SUCCESS,
+                recommendationService.getRecommendedCourses(userId)
+        ));
     }
 
     @GetMapping

@@ -3,7 +3,7 @@ package com.eduverse.eduversebe.service;
 import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.dto.request.ApplyCouponRequest;
-import com.eduverse.eduversebe.dto.respone.CouponCalculationResponse;
+import com.eduverse.eduversebe.dto.response.CouponCalculationResponse;
 import com.eduverse.eduversebe.model.Coupon;
 import com.eduverse.eduversebe.repository.CouponRepository;
 import lombok.RequiredArgsConstructor;

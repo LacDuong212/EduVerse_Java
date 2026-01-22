@@ -3,7 +3,7 @@ package com.eduverse.eduversebe.service;
 import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.dto.request.*;
-import com.eduverse.eduversebe.dto.respone.LoginResponse;
+import com.eduverse.eduversebe.dto.response.LoginResponse;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

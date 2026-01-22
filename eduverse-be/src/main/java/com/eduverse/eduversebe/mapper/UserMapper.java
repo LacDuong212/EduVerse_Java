@@ -1,7 +1,7 @@
 package com.eduverse.eduversebe.mapper;
 
 import com.eduverse.eduversebe.dto.request.UpdateProfileRequest;
-import com.eduverse.eduversebe.dto.respone.UserResponse;
+import com.eduverse.eduversebe.dto.response.UserResponse;
 import com.eduverse.eduversebe.model.User;
 import org.mapstruct.*;
 

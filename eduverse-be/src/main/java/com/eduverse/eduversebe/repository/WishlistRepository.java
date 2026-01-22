@@ -17,4 +17,6 @@ public interface WishlistRepository extends MongoRepository<Wishlist, String> {
     boolean existsByUserIdAndCourseId(String userId, String courseId);
 
     long countByUserId(String userId);
+
+    List<Wishlist> findByUserId(String userId);
 }

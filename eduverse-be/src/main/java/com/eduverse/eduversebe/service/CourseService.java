@@ -2,7 +2,7 @@ package com.eduverse.eduversebe.service;
 
 import com.eduverse.eduversebe.common.globalEnums.CourseStatus;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
-import com.eduverse.eduversebe.dto.respone.*;
+import com.eduverse.eduversebe.dto.response.*;
 import com.eduverse.eduversebe.mapper.CourseMapper;
 import com.eduverse.eduversebe.model.Category;
 import com.eduverse.eduversebe.model.Course;

@@ -3,7 +3,7 @@ package com.eduverse.eduversebe.controller;
 import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.request.ApplyCouponRequest;
-import com.eduverse.eduversebe.dto.respone.CouponCalculationResponse;
+import com.eduverse.eduversebe.dto.response.CouponCalculationResponse;
 import com.eduverse.eduversebe.model.Coupon;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.CouponService;

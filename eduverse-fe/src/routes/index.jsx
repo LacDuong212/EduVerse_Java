@@ -17,8 +17,8 @@ import InstructorDashboard from "../app/instructor/dashboard";
 
 // STUDENT
 const Checkout = lazy(() => import('@/app/shop/checkout/page'));
-// const PaymentSuccess = lazy(() => import('@/app/shop/payment-result/success/page'));
-// const PaymentFailed = lazy(() => import('@/app/shop/payment-result/failed/page'));
+const PaymentSuccess = lazy(() => import('@/app/shop/payment-result/success/page'));
+const PaymentFailed = lazy(() => import('@/app/shop/payment-result/failed/page'));
 import CartDetails from "../app/shop/cart/page";
 import WishList from "../app/shop/wishlist/page";
 // import StudentMyCourses from '../app/student/my-courses';
@@ -34,7 +34,7 @@ import WishList from "../app/shop/wishlist/page";
 import HomePage from "../app/pages/home/page";
 import CoursesPage from "../app/pages/course/grid/page";
 import BecomeInstructorPage from '../app/student/become-instructor';
-// import CourseDetails from "../app/pages/course/detail/page";
+import CourseDetails from "../app/pages/course/detail/page";
 // import InstructorDetailsPage from "../app/pages/instructors/detail";
 // import VideoPlayer from "../app/pages/course/video-player/page";
 // import NotFoundPage from '../app/not-found';
@@ -59,11 +59,13 @@ export const publicRoutes = [{
 //   name: 'Course Result',
 //   isNested: false,
 //   element: <CourseResultPage />
-// }, {
-//   path: '/courses/:id',
-//   name: 'CourseDetails',
-//   element: <CourseDetails />
-// }, {
+// }
+, {
+  path: '/courses/:id',
+  name: 'CourseDetails',
+  element: <CourseDetails />
+}
+//, {
 //   path: '/instructors',
 //   name: 'All Instructors',
 //   element: <NotFoundPage />
@@ -178,7 +180,7 @@ export const studentRoutes = [{
   name: 'Checkout',
   isNested: false,
   element: <Checkout />
-}]
+}, {
 // , {
 //   path: '/student/profile',
 //   name: 'Profile',
@@ -195,16 +197,16 @@ export const studentRoutes = [{
 //   isNested: true,
 //   element: <OrderDetailPage />
 // }, {
-//   path: '/student/payment-success',
-//   name: 'Payment Success',
-//   isNested: false,
-//   element: <PaymentSuccess />
-// }, {
-//   path: '/student/payment-failed',
-//   name: 'Failed',
-//   isNested: false,
-//   element: <PaymentFailed />
-// }, {
+  path: '/student/payment-success',
+  name: 'Payment Success',
+  isNested: false,
+  element: <PaymentSuccess />
+}, {
+  path: '/student/payment-failed',
+  name: 'Failed',
+  isNested: false,
+  element: <PaymentFailed />
+}]
 //   path: '/student/payment-info',
 //   name: 'Payment Info',
 //   isNested: true,

@@ -2,7 +2,7 @@ package com.eduverse.eduversebe.controller;
 
 import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
-import com.eduverse.eduversebe.dto.respone.CartItemResponse;
+import com.eduverse.eduversebe.dto.response.CartItemResponse;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.CartService;
 import lombok.RequiredArgsConstructor;

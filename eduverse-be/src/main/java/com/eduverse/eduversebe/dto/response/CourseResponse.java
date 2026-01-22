@@ -1,4 +1,4 @@
-package com.eduverse.eduversebe.dto.respone;
+package com.eduverse.eduversebe.dto.response;
 
 import com.eduverse.eduversebe.common.globalEnums.CourseLevel;
 import com.fasterxml.jackson.annotation.JsonProperty;

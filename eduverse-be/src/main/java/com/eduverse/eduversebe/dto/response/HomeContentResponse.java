@@ -1,4 +1,4 @@
-package com.eduverse.eduversebe.dto.respone;
+package com.eduverse.eduversebe.dto.response;
 
 import lombok.Builder;
 import lombok.Data;

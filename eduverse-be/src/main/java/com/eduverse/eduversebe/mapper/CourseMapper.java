@@ -1,6 +1,6 @@
 package com.eduverse.eduversebe.mapper;
 
-import com.eduverse.eduversebe.dto.respone.CourseResponse;
+import com.eduverse.eduversebe.dto.response.CourseResponse;
 import com.eduverse.eduversebe.model.Course;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;

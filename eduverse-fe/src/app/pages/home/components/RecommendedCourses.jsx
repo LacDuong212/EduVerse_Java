@@ -27,7 +27,7 @@ const RecommendedCourses = () => {
 
         <Row className="g-4">
           {recommendedCourses.map((course) => (
-            <Col sm={6} lg={4} xl={3} key={course._id}>
+            <Col sm={6} lg={4} xl={3} key={course.id}>
               <div className="position-relative h-100">
                 <CourseCard course={course} />
 

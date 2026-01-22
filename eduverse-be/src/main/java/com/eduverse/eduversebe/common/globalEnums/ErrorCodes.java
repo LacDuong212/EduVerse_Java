@@ -57,6 +57,11 @@ public enum ErrorCodes {
     COUPON_EXPIRED(18002, "The coupon code has expired.", BAD_REQUEST),
     COUPON_ALREADY_USED(18003, "You have already used this code!", BAD_REQUEST),
 
+    //--Order (19xxx)
+    ORDER_NOT_FOUND(19000, "Order not found", NOT_FOUND),
+    CART_EMPTY(19001, "Cart is empty or invalid", BAD_REQUEST),
+    INVALID_PAYMENT_METHOD(19002, "Invalid payment method", BAD_REQUEST),
+    ORDER_NOT_CANCELLABLE(19003, "Processed orders cannot be canceled", BAD_REQUEST),
     ;
 
     int responseCode;

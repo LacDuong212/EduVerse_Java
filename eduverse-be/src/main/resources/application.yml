@@ -88,3 +88,20 @@ logging:
 socket-server:
   host: 0.0.0.0
   port: 8085
+
+payment:
+  client-url: ${CLIENT_URL}
+
+  momo:
+    partner-code: ${MOMO_PARTNER_CODE}
+    access-key: ${MOMO_ACCESS_KEY}
+    secret-key: ${MOMO_SECRET_KEY}
+    api-endpoint: ${MOMO_API_ENDPOINT}
+    redirect-url: ${MOMO_REDIRECT_URL}
+    ipn-url: ${MOMO_IPN_URL}
+
+  vnpay:
+    tmn-code: ${VNP_TMN_CODE}
+    hash-secret: ${VNP_HASH_SECRET}
+    url: ${VNP_URL}
+    return-url: ${VNP_RETURN_URL}

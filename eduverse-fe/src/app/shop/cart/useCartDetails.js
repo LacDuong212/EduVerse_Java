@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { fetchCart, removeFromCart as removeFromCartAction, clearCart } from "@/redux/cartSlice";
 
 function getId(item) {
-  return item?.course?.id;
+  return item.id;
 }
 
 export default function useCartDetail(initialSelectedIds = []) {
@@ -23,6 +23,17 @@ export default function useCartDetail(initialSelectedIds = []) {
 
   const isSelecting = selected.length > 0;
 
+    const normalizedItems = useMemo(() => {
+        return items.map(cartItem => {
+            const course = cartItem.course || cartItem;
+            
+            return {
+                ...course,
+                id: course.id || course._id
+            };
+        });
+    }, [items]);
+
   useEffect(() => {
     if (items.length === 0 && status === 'idle') {
         dispatch(fetchCart());
@@ -30,10 +41,10 @@ export default function useCartDetail(initialSelectedIds = []) {
   }, [dispatch, items.length, status]);
 
   useEffect(() => {
-    if (items.length > 0) {
-        setSelected(prev => prev.filter(id => items.find(i => getId(i) === id)));
+    if (normalizedItems.length > 0) {
+      setSelected(prev => prev.filter(id => normalizedItems.find(i => i.id === id)));
     }
-  }, [items]);
+  }, [normalizedItems]);
 
   const toggleSelect = (id) => {
     setSelected((prev) =>
@@ -43,18 +54,17 @@ export default function useCartDetail(initialSelectedIds = []) {
 
   const toggleSelectAll = () => {
     if (selected.length === items.length) setSelected([]);
-    else setSelected(items.map((i) => getId(i)));
+    else setSelected(normalizedItems.map((i) => i.id));
   };
 
   const displayedCourses = useMemo(() => {
-      const filteredItems = selected.length > 0 
-          ? items.filter((c) => selected.includes(getId(c)))
-          : items;
+      if (selected.length > 0) {
+            return normalizedItems.filter((c) => selected.includes(c.id));
+        }
+        return normalizedItems; 
+    }, [normalizedItems, selected]);
 
-      return filteredItems.map(item => item.course || item);
-  }, [items, selected]);
-
-   const displayedSubTotal = useMemo(() => {
+  const displayedSubTotal = useMemo(() => {
       return displayedCourses.reduce(
         (sum, c) => sum + (Number(c?.discountPrice ?? c?.price ?? 0) || 0),
         0
@@ -166,7 +176,7 @@ export default function useCartDetail(initialSelectedIds = []) {
 
     try {
       const payload = {
-        courseIds: coursesToCheckout.map(c => getId(c)),
+        courseIds: coursesToCheckout.map(c => c.id),
         paymentMethod,
         couponCode: appliedCoupon?.couponCode || null
       };
@@ -189,7 +199,7 @@ export default function useCartDetail(initialSelectedIds = []) {
         return { type: 'redirect_internal', url: `/student/courses` };
       }
 
-      const orderId = order.id;
+      const orderId = order.id || order._id;
       toast.info('Creating payment request...');
 
       const { data: paymentData } = await axios.post(
@@ -201,14 +211,14 @@ export default function useCartDetail(initialSelectedIds = []) {
         { withCredentials: true }
       );
 
-      const paymentResult = paymentResponse.result;
+      const paymentResult = paymentData.result;
 
       if (!paymentResult?.payUrl) {
-        toast.error(paymentResponse.message || 'Unable to generate payment link.');
+        toast.error(paymentData.message || 'Unable to generate payment link.');
         return null;
       }
 
-      return { type: 'redirect_external', url: paymentData.payUrl };
+      return { type: 'redirect_external', url: paymentResult.payUrl };
 
     } catch (error) {
       console.error("Error during checkout:", error);

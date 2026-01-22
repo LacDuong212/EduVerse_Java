@@ -2,7 +2,7 @@ package com.eduverse.eduversebe.service;
 
 import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
-import com.eduverse.eduversebe.dto.respone.UserResponse;
+import com.eduverse.eduversebe.dto.response.UserResponse;
 import com.eduverse.eduversebe.mapper.UserMapper;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.repository.UserRepository;

@@ -2,7 +2,7 @@ package com.eduverse.eduversebe.controller;
 
 import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
-import com.eduverse.eduversebe.dto.respone.CategoryResponse;
+import com.eduverse.eduversebe.dto.response.CategoryResponse;
 import com.eduverse.eduversebe.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

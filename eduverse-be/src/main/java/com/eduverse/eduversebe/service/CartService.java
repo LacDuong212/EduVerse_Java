@@ -2,8 +2,8 @@ package com.eduverse.eduversebe.service;
 
 import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
-import com.eduverse.eduversebe.dto.respone.CartItemResponse;
-import com.eduverse.eduversebe.dto.respone.CourseResponse;
+import com.eduverse.eduversebe.dto.response.CartItemResponse;
+import com.eduverse.eduversebe.dto.response.CourseResponse;
 import com.eduverse.eduversebe.mapper.CourseMapper;
 import com.eduverse.eduversebe.model.Cart;
 import com.eduverse.eduversebe.model.Course;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.eduverse.eduversebe.dto.respone;
+package com.eduverse.eduversebe.dto.response;
 
 import com.eduverse.eduversebe.common.globalEnums.UserRole;
 import lombok.Builder;

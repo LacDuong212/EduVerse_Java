@@ -1,6 +1,6 @@
 package com.eduverse.eduversebe.mapper;
 
-import com.eduverse.eduversebe.dto.respone.CategoryResponse;
+import com.eduverse.eduversebe.dto.response.CategoryResponse;
 import com.eduverse.eduversebe.model.Category;
 import org.mapstruct.Mapper;
 

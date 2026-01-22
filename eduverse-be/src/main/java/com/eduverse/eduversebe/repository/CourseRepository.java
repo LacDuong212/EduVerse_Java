@@ -25,4 +25,8 @@ public interface CourseRepository extends MongoRepository<Course, String> {
             "{ '$sort': { 'discountAmount': -1 } }"
     })
     List<Course> findBiggestDiscounts(CourseStatus status, Pageable pageable);
+
+    List<Course> findTop8ByIsPrivateFalseAndIsDeletedFalseAndStatusOrderByStudentsEnrolledDesc(CourseStatus status);
+
+    List<Course> findAllByIsPrivateFalseAndIsDeletedFalseAndStatus(CourseStatus status);
 }

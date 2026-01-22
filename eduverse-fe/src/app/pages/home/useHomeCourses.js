@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { setHomeCourses, setAllCourses, setRecommendedCourses } from "@/redux/coursesSlice";
+import { setHomeCourses, setRecommendedCourses } from "@/redux/coursesSlice";
 
 export default function useHomeCourses() {
   const dispatch = useDispatch();
@@ -33,22 +33,6 @@ export default function useHomeCourses() {
            biggestDiscounts: home.biggestDiscounts || [],
       }));
 
-      // let page = 1;
-      // const merged = [];
-      // while (true) {
-      //   const res = await axios.get(`${backendUrl}/api/courses?page=${page}`, {
-      //      withCredentials: true,
-      //      timeout: 15000,
-      //   });
-      //   const chunk = Array.isArray(res?.data?.data) ? res.data.data : [];
-      //   merged.push(...chunk);
-        
-      //   const pg = res?.data?.pagination || {};
-      //   if (!pg?.totalPages || page >= Number(pg.totalPages)) break;
-      //   page += 1;
-      // }
-      // dispatch(setAllCourses(merged));
-
     } catch (err) {
       console.error("Public fetch error:", err);
       toast.error("Could not load some courses");
@@ -71,7 +55,7 @@ export default function useHomeCourses() {
         });
         
         if (resRec.data.success) {
-            dispatch(setRecommendedCourses(resRec.data.courses));
+            dispatch(setRecommendedCourses(resRec.data.result.courses));
         }
     } catch (recErr) {
         console.warn("Failed to fetch recommendations:", recErr);

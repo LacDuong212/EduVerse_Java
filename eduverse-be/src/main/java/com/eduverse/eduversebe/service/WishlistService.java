@@ -2,8 +2,8 @@ package com.eduverse.eduversebe.service;
 
 import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
-import com.eduverse.eduversebe.dto.respone.CourseResponse;
-import com.eduverse.eduversebe.dto.respone.WishlistResponse;
+import com.eduverse.eduversebe.dto.response.CourseResponse;
+import com.eduverse.eduversebe.dto.response.WishlistResponse;
 import com.eduverse.eduversebe.mapper.CourseMapper;
 import com.eduverse.eduversebe.model.Course;
 import com.eduverse.eduversebe.model.Wishlist;

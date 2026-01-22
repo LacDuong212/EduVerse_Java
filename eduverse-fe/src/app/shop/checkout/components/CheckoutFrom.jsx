@@ -31,7 +31,7 @@ const CheckoutProductCard = ({ image, title, price, discountPrice }) => {
   );
 };
 
-const CheckoutFrom = () => {
+const CheckoutForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedIds } = location.state || {};
@@ -171,7 +171,7 @@ const CheckoutFrom = () => {
               <div className="mb-3" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                 {displayedCourses.map((item) => (
                   <CheckoutProductCard
-                    key={item.courseId || item._id}
+                    key={item.id || item._id}
                     image={item.thumbnail || '/placeholder-course.png'}
                     title={item.title || 'Untitled'}
                     price={item.price}
@@ -252,4 +252,4 @@ const CheckoutFrom = () => {
     </section>
   );
 };
-export default CheckoutFrom;
+export default CheckoutForm;

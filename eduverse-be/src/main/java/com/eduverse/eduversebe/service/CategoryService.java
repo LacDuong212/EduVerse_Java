@@ -1,6 +1,6 @@
 package com.eduverse.eduversebe.service;
 
-import com.eduverse.eduversebe.dto.respone.CategoryResponse;
+import com.eduverse.eduversebe.dto.response.CategoryResponse;
 import com.eduverse.eduversebe.mapper.CategoryMapper;
 import com.eduverse.eduversebe.model.Category;
 import com.eduverse.eduversebe.repository.CategoryRepository;
