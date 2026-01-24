@@ -34,7 +34,7 @@ public class ApplicationConfig {
                     true,
                     true,
                     Collections.singletonList(
-                            new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                            new SimpleGrantedAuthority(user.getRole().asAuthority())
                     )
             );
         };
