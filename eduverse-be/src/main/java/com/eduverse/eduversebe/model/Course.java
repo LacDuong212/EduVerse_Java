@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +86,7 @@ public class Course extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CourseInstructor {
+        @Field(targetType = FieldType.OBJECT_ID)
         private String ref;
         private String name;
         private String avatar;

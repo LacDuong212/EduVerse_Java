@@ -32,6 +32,9 @@ public enum SuccessCodes {
     GET_COURSE_FILTER_SUCCESS(22003, "Get course filter successfully", OK),
     GET_RECOMMENDATION_SUCCESS(22004, "Get recommendation successfully", OK),
     GET_TOP_5_COURSES_SUCCESS(22005, "Get top 5 courses successfully", OK),
+    GET_MY_COURSES_LIST_SUCCESS(22006, "Get my courses successfully", OK),
+    GET_MY_COURSES_STATS_SUCCESS(22007, "Get courses stats successfully", OK),
+    UPDATE_COURSE_PRIVACY_SUCCESS(22008, "Update course privacy successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),

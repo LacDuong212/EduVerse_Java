@@ -1,6 +1,8 @@
 package com.eduverse.eduversebe.service;
 
+import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.CourseStatus;
+import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
 import com.eduverse.eduversebe.dto.response.*;
 import com.eduverse.eduversebe.mapper.CourseMapper;
@@ -8,10 +10,12 @@ import com.eduverse.eduversebe.model.Category;
 import com.eduverse.eduversebe.model.Course;
 import com.eduverse.eduversebe.repository.CategoryRepository;
 import com.eduverse.eduversebe.repository.CourseRepository;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,6 +23,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -176,20 +181,7 @@ public class CourseService {
 
         if (hasText(request.getSearch())) {
             String keyword = request.getSearch().trim();
-
-            allCourses = allCourses.stream()
-                    .filter(course -> {
-                        int scoreTitle = FuzzySearch.weightedRatio(keyword, course.getTitle());
-                        int scoreSub = FuzzySearch.weightedRatio(keyword, course.getSubtitle());
-
-                        return scoreTitle > 50 || scoreSub > 50;
-                    })
-                    .sorted((c1, c2) -> {
-                        int score1 = FuzzySearch.weightedRatio(keyword, c1.getTitle());
-                        int score2 = FuzzySearch.weightedRatio(keyword, c2.getTitle());
-                        return score2 - score1;
-                    })
-                    .collect(Collectors.toList());
+            allCourses = this.fuzzySearch(allCourses, keyword);
         } else {
             applySorting(allCourses, request.getSort());
         }
@@ -198,17 +190,7 @@ public class CourseService {
         int page = Math.max(request.getPage(), 1);
         int limit = Math.max(request.getLimit(), 1);
 
-        int fromIndex = (page - 1) * limit;
-
-        List<Course> paginatedList;
-        if (fromIndex >= total) {
-            paginatedList = Collections.emptyList();
-        } else {
-            int toIndex = Math.min(fromIndex + limit, total);
-            paginatedList = allCourses.subList(fromIndex, toIndex);
-        }
-
-        List<CourseResponse> content = paginatedList.stream()
+        List<CourseResponse> content = getPaginatedList(page, limit, allCourses, total).stream()
                 .map(this::mapToCourseResponseWithCalculations)
                 .collect(Collectors.toList());
 
@@ -220,6 +202,21 @@ public class CourseService {
                         .totalPages((int) Math.ceil((double) total / limit))
                         .build())
                 .build();
+    }
+
+    private List<Course> fuzzySearch(List<Course> courses, String keyword) {
+        return courses.stream().filter(course -> {
+                    int scoreTitle = FuzzySearch.weightedRatio(keyword, course.getTitle());
+                    int scoreSub = FuzzySearch.weightedRatio(keyword, course.getSubtitle());
+
+                    return scoreTitle > 50 || scoreSub > 50;
+                })
+                .sorted((c1, c2) -> {
+                    int score1 = FuzzySearch.weightedRatio(keyword, c1.getTitle());
+                    int score2 = FuzzySearch.weightedRatio(keyword, c2.getTitle());
+                    return score2 - score1;
+                })
+                .collect(Collectors.toList());
     }
 
     private void applySorting(List<Course> courses, String sortParam) {
@@ -243,7 +240,28 @@ public class CourseService {
                 courses.sort(Comparator.comparing(getEffectivePrice, Comparator.nullsLast(Comparator.naturalOrder())));
                 break;
             case "mostPopular":
-                courses.sort(Comparator.comparing(Course::getStudentsEnrolled, Comparator.nullsLast(Comparator.reverseOrder())));
+                courses.sort(Comparator.comparing(
+                        Course::getStudentsEnrolled,
+                        Comparator.nullsLast(Comparator.reverseOrder()))
+                );
+                break;
+            case "leastPopular":
+                courses.sort(Comparator.comparing(
+                        Course::getStudentsEnrolled,
+                        Comparator.nullsLast(Comparator.naturalOrder()))
+                );
+                break;
+            case "highestRating":
+                courses.sort(Comparator.comparing(
+                        c -> c.getRating().getAverage(),
+                        Comparator.nullsLast(Comparator.reverseOrder()))
+                );
+                break;
+            case "lowestRating":
+                courses.sort(Comparator.comparing(
+                        c -> c.getRating().getAverage(),
+                        Comparator.nullsLast(Comparator.naturalOrder()))
+                );
                 break;
             case "newest":
             default:
@@ -310,5 +328,87 @@ public class CourseService {
                 .languages(languagesFuture.join())
                 .levels(levels)
                 .build();
+    }
+
+    public PageResponse<InstructorCoursesListItemResponse> getCoursesMatchCriteriaForInstructor(String instructorId,
+                                                                                        String searchKey,
+                                                                                        String sortKey,
+                                                                                        int pageNum,
+                                                                                        int pageSize) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+        query.addCriteria(Criteria.where("instructor.ref").in(instructorId));
+        query.limit(100);   // yes.
+
+        List<Course> results = mongoTemplate.find(query, Course.class);
+        if (hasText(searchKey)) {
+            results = this.fuzzySearch(results, searchKey);
+        } else if (hasText(sortKey)) {
+            this.applySorting(results, sortKey);
+        } else {
+            query.with(Sort.by(Sort.Direction.DESC, "updatedAt"));
+        }
+
+        int total = results.size();
+
+        List<InstructorCoursesListItemResponse> mappedList = getPaginatedList(pageNum, pageSize, results, total)
+                .stream()
+                .map(courseMapper::toInstructorCoursesListItemResponse)
+                .toList();
+
+        return PageResponse.<InstructorCoursesListItemResponse>builder()
+                .data(mappedList)
+                .pagination(PageResponse.Pagination.builder()
+                        .total(total)
+                        .page(pageNum)
+                        .totalPages((int) Math.ceil((double) total / pageSize))
+                        .build())
+                .build();
+    }
+
+    private List<Course> getPaginatedList(int pageNum, int pageSize, List<Course> results, int total) {
+        int fromIndex = (pageNum - 1) * pageSize;
+
+        if (fromIndex >= total) {
+            return Collections.emptyList();
+        } else {
+            int toIndex = Math.min(fromIndex + pageSize, total);
+            return results.subList(fromIndex, toIndex);
+        }
+    }
+
+    public boolean updateCoursePrivacy(String id, boolean privacy) {
+        if (!courseRepository.existsById(id)) throw new AppException(ErrorCodes.COURSE_NOT_FOUND);
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(id));
+
+        Update update = new Update();
+        update.set("isPrivate", privacy);
+
+        UpdateResult result = mongoTemplate.updateFirst(query, update, Course.class);
+
+        return result.getMatchedCount() > 0;
+    }
+
+    public int countInstructorCourses(String instructorId) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+        query.addCriteria(Criteria.where("instructor.ref").is(instructorId));
+
+        return Math.toIntExact(mongoTemplate.count(query, Course.class));
+    }
+
+    public int countCoursesWithStatusForInstructor(String instructorId, @DefaultValue("") CourseStatus status) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("isDeleted").is(false));
+        query.addCriteria(Criteria.where("instructor.ref").is(instructorId));
+        query.addCriteria(Criteria.where("status").is(status));
+
+        return Math.toIntExact(mongoTemplate.count(query, Course.class));
+    }
+
+    public boolean checkCourseOwnership(String courseId, String instructorId) {
+        return courseRepository.existsByIdAndInstructor_Ref(courseId, instructorId);
     }
 }

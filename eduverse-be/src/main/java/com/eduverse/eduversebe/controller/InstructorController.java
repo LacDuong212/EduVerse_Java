@@ -1,29 +1,24 @@
 package com.eduverse.eduversebe.controller;
 
+import com.eduverse.eduversebe.common.api.ApiPaths;
 import com.eduverse.eduversebe.common.api.ApiResponse;
+import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
+import com.eduverse.eduversebe.dto.request.UpdateCoursePrivacyRequest;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.InstructorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class InstructorController {
     private final InstructorService instructorService;
 
-    @GetMapping("/api/instructor/stats")
-    public ResponseEntity<?> getInstructorStats(@AuthenticationPrincipal User currentUser) {
-        return ResponseEntity.ok(ApiResponse.success(
-                SuccessCodes.GET_INSTRUCTOR_STATS_SUCCESS,
-                instructorService.getInstructorStats(currentUser.getId())
-        ));
-    }
-
-    @GetMapping("/api/instructor/charts/earning")
+    @GetMapping(ApiPaths.Instructor.CHART + "/earning")
     public ResponseEntity<?> getMonthlyEarning(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MONTHLY_EARNING_SUCCESS,
@@ -31,11 +26,64 @@ public class InstructorController {
         ));
     }
 
-    @GetMapping("/api/instructor/charts/top-5-courses")
+    @GetMapping(ApiPaths.Instructor.CHART + "/top-5-courses")
     public ResponseEntity<?> getTop5Courses(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_TOP_5_COURSES_SUCCESS,
                 instructorService.getInstructorTop5CourseEarning(currentUser.getId())
         ));
+    }
+
+    @GetMapping(ApiPaths.Instructor.MY_COURSES + "/list")
+    public ResponseEntity<?> getCoursesList(@AuthenticationPrincipal User currentUser,
+                                            @RequestParam(defaultValue = "1") Integer page,
+                                            @RequestParam(defaultValue = "10") Integer limit,
+                                            @RequestParam(defaultValue = "") String search,
+                                            @RequestParam(defaultValue = "") String sort) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_MY_COURSES_LIST_SUCCESS,
+                instructorService.getInstructorCoursesListMatchCriteria(
+                        currentUser.getId(),
+                        page,
+                        limit,
+                        search,
+                        sort
+                )
+        ));
+    }
+
+    @GetMapping(ApiPaths.Instructor.MY_COURSES + "/stats")
+    public ResponseEntity<?> getCoursesStats(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_MY_COURSES_STATS_SUCCESS,
+                instructorService.getInstructorCoursesStats(currentUser.getId())
+        ));
+    }
+
+    @GetMapping(ApiPaths.Instructor.STATS)
+    public ResponseEntity<?> getInstructorStats(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_INSTRUCTOR_STATS_SUCCESS,
+                instructorService.getInstructorStats(currentUser.getId())
+        ));
+    }
+
+    @PatchMapping(ApiPaths.Instructor.MY_COURSES + "/{courseId}/privacy")
+    public ResponseEntity<?> changeCoursePrivacy(@AuthenticationPrincipal User currentUser,
+                                                 @PathVariable String courseId,
+                                                 @RequestBody UpdateCoursePrivacyRequest request) {
+        if (!instructorService.checkCourseOwnership(currentUser.getId(), courseId))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(
+                    ErrorCodes.COURSE_ACCESS_DENIED
+            ));
+
+        if (instructorService.changeCoursePrivacy(courseId, request))
+            return ResponseEntity.ok(ApiResponse.success(
+                    SuccessCodes.UPDATE_COURSE_PRIVACY_SUCCESS
+            ));
+        else
+            return ResponseEntity.ok(ApiResponse.error(
+                    ErrorCodes.UPDATE_COURSE_PRIVACY_FAILED
+            ));
     }
 }

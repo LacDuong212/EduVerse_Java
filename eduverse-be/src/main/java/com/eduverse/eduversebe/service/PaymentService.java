@@ -144,7 +144,7 @@ public class PaymentService {
             StringBuilder query = new StringBuilder();
 
             for (Map.Entry<String, String> entry : vnp_Params.entrySet()) {
-                if (hashData.length() > 0) {
+                if (!hashData.isEmpty()) {
                     hashData.append('&');
                     query.append('&');
                 }
@@ -229,7 +229,7 @@ public class PaymentService {
 
             for (Map.Entry<String, String> entry : sortedParams.entrySet()) {
                 if (entry.getValue() != null && !entry.getValue().isEmpty()) {
-                    if (hashData.length() > 0) hashData.append('&');
+                    if (!hashData.isEmpty()) hashData.append('&');
                     hashData.append(URLEncoder.encode(entry.getKey(), StandardCharsets.US_ASCII));
                     hashData.append('=');
                     hashData.append(URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII));

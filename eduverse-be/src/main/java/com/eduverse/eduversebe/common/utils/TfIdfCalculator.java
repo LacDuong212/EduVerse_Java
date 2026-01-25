@@ -16,7 +16,7 @@ public class TfIdfCalculator {
     private List<String> tokenize(String text) {
         if (text == null || text.isEmpty()) return Collections.emptyList();
         return Arrays.stream(text.toLowerCase().split("\\W+")) // Split non-word characters
-                .filter(w -> !w.isEmpty() && w.length() > 2) // Lọc từ quá ngắn
+                .filter(w -> w.length() > 2) // Lọc từ quá ngắn
                 .collect(Collectors.toList());
     }
 

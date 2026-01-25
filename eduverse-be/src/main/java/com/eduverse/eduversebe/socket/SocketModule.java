@@ -30,9 +30,7 @@ public class SocketModule {
     }
 
     private ConnectListener onConnected() {
-        return (client) -> {
-            log.info("Socket ID[{}]  Connected to socket", client.getSessionId().toString());
-        };
+        return (client) -> log.info("Socket ID[{}]  Connected to socket", client.getSessionId().toString());
     }
 
     private DisconnectListener onDisconnected() {

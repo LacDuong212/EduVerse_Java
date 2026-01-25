@@ -1,0 +1,17 @@
+package com.eduverse.eduversebe.dto.response;
+
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Data;
+import lombok.experimental.FieldDefaults;
+
+@Builder
+@Data
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class InstructorCoursesStatsResponse {
+    Integer totalCourses;
+    Integer totalLive;
+    Integer totalPending;
+    Integer totalRejected;
+    Integer totalBlocked;
+}

@@ -16,7 +16,7 @@ public class ServerRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         server.start();
-        log.info("Socket.IO Server started on port " + server.getConfiguration().getPort());
+        log.info("Socket.IO Server started on port {}", server.getConfiguration().getPort());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             server.stop();

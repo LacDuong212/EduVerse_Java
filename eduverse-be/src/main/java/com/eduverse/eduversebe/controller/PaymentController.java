@@ -69,8 +69,7 @@ public class PaymentController {
         String resultCode = params.get("resultCode");
 
         if (isValid && "0".equals(resultCode)) {
-            Order order = orderRepository.findById(orderId).orElse(null);
-            if (order != null) paymentService.activateCoursesForOrder(order);
+            orderRepository.findById(orderId).ifPresent(paymentService::activateCoursesForOrder);
         }
 
         String redirectUrl = isValid && "0".equals(resultCode)
@@ -109,8 +108,7 @@ public class PaymentController {
         String rspCode = params.get("vnp_ResponseCode");
 
         if (isValid && "00".equals(rspCode)) {
-            Order order = orderRepository.findById(orderId).orElse(null);
-            if (order != null) paymentService.activateCoursesForOrder(order);
+            orderRepository.findById(orderId).ifPresent(paymentService::activateCoursesForOrder);
         }
 
         String redirectUrl = isValid && "00".equals(rspCode)

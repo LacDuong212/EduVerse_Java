@@ -40,6 +40,8 @@ public enum ErrorCodes {
 
     //--Course (14xxx)
     COURSE_NOT_FOUND(14000, "Course not found for this user.", NOT_FOUND),
+    UPDATE_COURSE_PRIVACY_FAILED(14001, "Update course privacy failed", BAD_REQUEST),
+    COURSE_ACCESS_DENIED(14002, "You do not have access to this course", FORBIDDEN),
 
     //--Cart (15xxx)
 

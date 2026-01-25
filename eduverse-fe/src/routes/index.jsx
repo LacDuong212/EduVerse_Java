@@ -12,7 +12,7 @@ const ResetPassword = lazy(() => import('@/app/auth/reset-password/page'));
 import InstructorDashboard from "../app/instructor/dashboard";
 // import InstructorEarnings from '../app/instructor/earnings';
 // import InstructorManageCoursePage from "../app/instructor/manage-course";
-// import InstructorMyCourses from "../app/instructor/my-courses";
+import InstructorMyCourses from "../app/instructor/my-courses";
 // import InstructorMyStudents from "../app/instructor/my-students";
 
 // STUDENT
@@ -115,7 +115,7 @@ export const instructorRoutes = [{
   path: '/instructor/courses',
   name: 'My Courses',
   isNested: false,
-  // element: <InstructorMyCourses />
+  element: <InstructorMyCourses />
 }, {
   path: '/instructor/students',
   name: 'My Students',

@@ -1,5 +1,6 @@
 package com.eduverse.eduversebe.common.api;
 
+import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -44,6 +45,15 @@ public class ApiResponse<T> {
                 .success(false)
                 .code(code)
                 .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    public static <T> ApiResponse<T> error(ErrorCodes errorCode) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .code(errorCode.getResponseCode())
+                .message(errorCode.getResponseMsg())
                 .timestamp(LocalDateTime.now())
                 .build();
     }

@@ -1,6 +1,5 @@
 package com.eduverse.eduversebe.dto.response;
 
-import com.eduverse.eduversebe.model.Course;
 import lombok.Builder;
 import lombok.Data;
 

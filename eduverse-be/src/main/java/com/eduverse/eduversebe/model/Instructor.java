@@ -20,8 +20,8 @@ import java.util.List;
 @Document(collection = "instructors")
 public class Instructor extends BaseEntity {
 
-    @Field(targetType = FieldType.OBJECT_ID)
-    private String user;
+    @Field(value = "user", targetType = FieldType.OBJECT_ID)
+    private String userId;
 
     @Builder.Default
     private Stats stats = new Stats();
@@ -96,6 +96,7 @@ public class Instructor extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MyCourse {
+        @Field(value = "course", targetType = FieldType.OBJECT_ID)
         private String courseId;
     }
 
@@ -105,6 +106,7 @@ public class Instructor extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MyStudent {
+        @Field(value = "student", targetType = FieldType.OBJECT_ID)
         private String studentId;
         @Builder.Default
         private LocalDateTime addedAt = LocalDateTime.now();
@@ -116,7 +118,9 @@ public class Instructor extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Enrollment {
+        @Field(value = "course", targetType = FieldType.OBJECT_ID)
         private String courseId;
+        @Field(value = "student", targetType = FieldType.OBJECT_ID)
         private String studentId;
 
         @Builder.Default

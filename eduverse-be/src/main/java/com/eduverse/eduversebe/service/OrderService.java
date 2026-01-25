@@ -6,6 +6,8 @@ import com.eduverse.eduversebe.common.globalEnums.OrderStatus;
 import com.eduverse.eduversebe.common.globalEnums.PaymentMethod;
 import com.eduverse.eduversebe.dto.request.CreateOrderRequest;
 import com.eduverse.eduversebe.dto.request.UpdateOrderRequest;
+import com.eduverse.eduversebe.dto.response.CourseEarningDataResponse;
+import com.eduverse.eduversebe.dto.response.MonthlyDataItemResponse;
 import com.eduverse.eduversebe.model.Cart;
 import com.eduverse.eduversebe.model.Coupon;
 import com.eduverse.eduversebe.model.Course;
@@ -170,7 +172,7 @@ public class OrderService {
         throw new AppException(ErrorCodes.UNAUTHORIZED_ACCESS);
     }
 
-    private List<com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse> fillMissingMonthsHelper(
+    private List<MonthlyDataItemResponse> fillMissingMonthsHelper(
             List<MonthlyEarningProjection> raw,
             Instant start,
             Instant end
@@ -188,11 +190,11 @@ public class OrderService {
                 end.atZone(ZoneOffset.UTC)
         );
 
-        List<com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse> result = new ArrayList<>();
+        List<MonthlyDataItemResponse> result = new ArrayList<>();
         YearMonth cursor = startMonth;
 
         while (!cursor.isAfter(endMonth)) {
-            result.add(com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse.builder()
+            result.add(MonthlyDataItemResponse.builder()
                     .period(cursor)
                     .value(dataMap.getOrDefault(cursor, 0.0))
                     .build());
@@ -202,7 +204,9 @@ public class OrderService {
         return result;
     }
 
-    public List<com.eduverse.eduversebe.dto.respone.MonthlyDataItemResponse> getCoursesMonthlyEarningPast12Months(List<String> courseIds) {
+    public List<MonthlyDataItemResponse> getCoursesMonthlyEarningPast12Months(List<String> courseIds) {
+        if (courseIds == null) courseIds = List.of();
+
         Instant start = YearMonth
                 .now()
                 .minusMonths(11)
@@ -219,10 +223,8 @@ public class OrderService {
         );
     }
 
-    public List<com.eduverse.eduversebe.dto.respone.CourseEarningDataResponse> getTop5EarningCoursesThisMonth(List<String> courseIds) {
-        if (courseIds.isEmpty()) {
-            return List.of();
-        }
+    public List<CourseEarningDataResponse> getTop5EarningCoursesThisMonth(List<String> courseIds) {
+        if (courseIds == null) courseIds = List.of();
 
         int limit = Math.min(5, courseIds.size());
 
@@ -241,7 +243,7 @@ public class OrderService {
 
         return orderRepository.getTopEarningCoursesThisMonth(courseIds, startOfMonth, startOfNextMonth, limit)
                 .stream()
-                .map(c -> com.eduverse.eduversebe.dto.respone.CourseEarningDataResponse.builder()
+                .map(c -> CourseEarningDataResponse.builder()
                         .id(c.getCourseId())
                         .title(c.getTitle())
                         .totalEarning(c.getTotalEarning())
@@ -251,6 +253,7 @@ public class OrderService {
     }
 
     public long countCompletedOrdersByCourseIds(List<String> courseIds) {
+        if (courseIds == null) courseIds = List.of();
         return OptionalLong.of(orderRepository.countCompletedOrdersByCourseIds(courseIds)).orElse(0L);
     }
 }

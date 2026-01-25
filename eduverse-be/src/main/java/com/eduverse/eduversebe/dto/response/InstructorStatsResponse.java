@@ -1,4 +1,4 @@
-package com.eduverse.eduversebe.dto.respone;
+package com.eduverse.eduversebe.dto.response;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,10 +9,18 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 public class InstructorStatsResponse {
-    Integer totalCourses;
-    Integer totalStudents;
-    Long totalOrders;
-    Long totalReviews;
+    @Builder.Default
+    Integer totalCourses = 0;
 
-    Double averageRating;
+    @Builder.Default
+    Integer totalStudents = 0;
+
+    @Builder.Default
+    Long totalOrders = 0L;
+
+    @Builder.Default
+    Long totalReviews = 0L;
+
+    @Builder.Default
+    Double averageRating = 0.0;
 }

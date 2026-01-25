@@ -12,7 +12,6 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

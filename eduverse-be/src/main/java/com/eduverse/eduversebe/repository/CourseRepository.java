@@ -29,4 +29,6 @@ public interface CourseRepository extends MongoRepository<Course, String> {
     List<Course> findTop8ByIsPrivateFalseAndIsDeletedFalseAndStatusOrderByStudentsEnrolledDesc(CourseStatus status);
 
     List<Course> findAllByIsPrivateFalseAndIsDeletedFalseAndStatus(CourseStatus status);
+
+    boolean existsByIdAndInstructor_Ref(String id, String instructorId);
 }
