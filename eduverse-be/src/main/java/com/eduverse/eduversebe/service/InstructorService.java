@@ -130,7 +130,6 @@ public class InstructorService {
         );
     }
 
-    // #TODO fix
     public List<CourseEarningDataResponse> getTop5EarningCoursesThisMonth(String userId) {
         List<ObjectId> courseIds = this.getInstructorCourseIds(userId).stream()
                 .map(ObjectId::new)

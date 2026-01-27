@@ -33,9 +33,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> userOptional = userRepository.findByGoogleId(googleId);
 
         User user;
-        if (userOptional.isPresent()) {
-            user = userOptional.get();
-        } else {
+        if (userOptional.isEmpty()) {
             Optional<User> userByEmail = userRepository.findByEmail(email);
 
             if (userByEmail.isPresent()) {

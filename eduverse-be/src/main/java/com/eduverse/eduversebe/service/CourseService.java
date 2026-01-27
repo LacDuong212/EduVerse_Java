@@ -418,13 +418,11 @@ public class CourseService {
     public void bulkUpdateCoursesEnrollmentCount(List<String> courseIds) {
         BulkOperations bulkOps =
                 mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Course.class);
-        courseIds.forEach(courseId -> {
-            bulkOps.updateOne(
-                    Query.query(Criteria.where("_id").is(courseId)),
-                    new Update().inc("studentsEnrolled", 1)
-                            .set("updatedAt", Instant.now())
-            );
-        });
+        courseIds.forEach(courseId -> bulkOps.updateOne(
+                Query.query(Criteria.where("_id").is(courseId)),
+                new Update().inc("studentsEnrolled", 1)
+                        .set("updatedAt", Instant.now())
+        ));
         bulkOps.execute();
     }
 }
