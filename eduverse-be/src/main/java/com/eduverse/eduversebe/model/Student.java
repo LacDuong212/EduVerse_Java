@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 public class Student extends BaseEntity {
 
     @Indexed(unique = true)
+    @Field(value = "user", targetType = FieldType.OBJECT_ID)
     private String userId;
 
     @Builder.Default
@@ -51,6 +54,7 @@ public class Student extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MyCourse {
+        @Field(value = "course", targetType = FieldType.OBJECT_ID)
         private String courseId;
     }
 }

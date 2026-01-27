@@ -18,6 +18,7 @@ import org.bson.types.ObjectId;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -26,6 +27,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -385,6 +387,7 @@ public class CourseService {
 
         Update update = new Update();
         update.set("isPrivate", privacy);
+        update.set("updatedAt", Instant.now());
 
         UpdateResult result = mongoTemplate.updateFirst(query, update, Course.class);
 
@@ -410,5 +413,18 @@ public class CourseService {
 
     public boolean checkCourseOwnership(String courseId, String instructorId) {
         return courseRepository.existsByIdAndInstructor_Ref(courseId, instructorId);
+    }
+
+    public void bulkUpdateCoursesEnrollmentCount(List<String> courseIds) {
+        BulkOperations bulkOps =
+                mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Course.class);
+        courseIds.forEach(courseId -> {
+            bulkOps.updateOne(
+                    Query.query(Criteria.where("_id").is(courseId)),
+                    new Update().inc("studentsEnrolled", 1)
+                            .set("updatedAt", Instant.now())
+            );
+        });
+        bulkOps.execute();
     }
 }

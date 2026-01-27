@@ -23,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder  passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
+    private final StudentService studentService;
 
     private String generateOtp() {
         int randomPin = (int) (Math.random() * 900000) + 100000;
@@ -61,7 +62,11 @@ public class AuthService {
         userToSave.setVerifyOtp(otp);
          userToSave.setVerifyOtpExpireAt(System.currentTimeMillis() + 10 * 60 * 1000);
 
-         userRepository.save(userToSave);
+         User savedUser = userRepository.save(userToSave);
+
+         if (!studentService.existsByUserId(savedUser.getId())) {
+             studentService.createNewStudent(savedUser.getId());
+         }
 
          emailService.sendOtpEmail(userToSave.getEmail(), userToSave.getName(), otp);
     }

@@ -64,6 +64,10 @@ public enum ErrorCodes {
     CART_EMPTY(19001, "Cart is empty or invalid", BAD_REQUEST),
     INVALID_PAYMENT_METHOD(19002, "Invalid payment method", BAD_REQUEST),
     ORDER_NOT_CANCELLABLE(19003, "Processed orders cannot be canceled", BAD_REQUEST),
+
+    //--Student (20xxx)
+    ADD_COURSES_FAILED(20001, "There are no courses to add", BAD_REQUEST),
+
     ;
 
     int responseCode;

@@ -6,6 +6,8 @@ import com.eduverse.eduversebe.common.model.BaseEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 @Document(collection = "orders")
 public class Order extends BaseEntity {
 
+    @Field(value = "user", targetType = FieldType.OBJECT_ID)
     private String userId;
     private List<OrderItem> courses;
     private Double subTotal;
@@ -40,6 +43,7 @@ public class Order extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OrderItem {
+        @Field(value = "course", targetType = FieldType.OBJECT_ID)
         private String courseId;
         private Double pricePaid;
     }

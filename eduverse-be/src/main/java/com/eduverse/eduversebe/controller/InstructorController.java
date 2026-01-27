@@ -2,13 +2,13 @@ package com.eduverse.eduversebe.controller;
 
 import com.eduverse.eduversebe.common.api.ApiPaths;
 import com.eduverse.eduversebe.common.api.ApiResponse;
+import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.request.UpdateCoursePrivacyRequest;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.InstructorService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class InstructorController {
     public ResponseEntity<?> getMonthlyEarning(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MONTHLY_EARNING_SUCCESS,
-                instructorService.getInstructorMonthlyEarning(currentUser.getId())
+                instructorService.getCoursesMonthlyEarningPast12Months(currentUser.getId())
         ));
     }
 
@@ -30,7 +30,7 @@ public class InstructorController {
     public ResponseEntity<?> getTop5Courses(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_TOP_5_COURSES_SUCCESS,
-                instructorService.getInstructorTop5CourseEarning(currentUser.getId())
+                instructorService.getTop5EarningCoursesThisMonth(currentUser.getId())
         ));
     }
 
@@ -73,9 +73,7 @@ public class InstructorController {
                                                  @PathVariable String courseId,
                                                  @RequestBody UpdateCoursePrivacyRequest request) {
         if (!instructorService.checkCourseOwnership(currentUser.getId(), courseId))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(
-                    ErrorCodes.COURSE_ACCESS_DENIED
-            ));
+            throw new AppException(ErrorCodes.COURSE_ACCESS_DENIED);
 
         if (instructorService.changeCoursePrivacy(courseId, request))
             return ResponseEntity.ok(ApiResponse.success(

@@ -27,7 +27,7 @@ const TopNavigationBar = () => {
           overlay={<Tooltip>Home</Tooltip>}
         >
           <span className="d-inline-block">
-            <Link className="navbar-brand py-0" to="/home">
+            <Link className="navbar-brand" to="/home">
               <LogoBox width={130} />
             </Link>
           </span>
@@ -51,7 +51,7 @@ const TopNavigationBar = () => {
             </OverlayTrigger>
             {wishlistCount > 0 && (
               <span
-                className="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger mt-xl-2 ms-n1"
+                className="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger mt-1 ms-n1"
                 style={{ zIndex: 10, pointerEvents: 'none' }}
               >
                 {wishlistCount}
@@ -70,7 +70,7 @@ const TopNavigationBar = () => {
             </OverlayTrigger>
             {cartCount > 0 && (
               <span
-                className="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-primary mt-xl-2 ms-n1"
+                className="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-primary mt-1 ms-n1"
                 style={{ zIndex: 10, pointerEvents: 'none' }}
               >
                 {cartCount}

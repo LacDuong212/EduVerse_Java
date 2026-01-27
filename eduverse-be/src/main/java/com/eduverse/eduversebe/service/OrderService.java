@@ -6,8 +6,6 @@ import com.eduverse.eduversebe.common.globalEnums.OrderStatus;
 import com.eduverse.eduversebe.common.globalEnums.PaymentMethod;
 import com.eduverse.eduversebe.dto.request.CreateOrderRequest;
 import com.eduverse.eduversebe.dto.request.UpdateOrderRequest;
-import com.eduverse.eduversebe.dto.response.CourseEarningDataResponse;
-import com.eduverse.eduversebe.dto.response.MonthlyDataItemResponse;
 import com.eduverse.eduversebe.model.Cart;
 import com.eduverse.eduversebe.model.Coupon;
 import com.eduverse.eduversebe.model.Course;
@@ -16,19 +14,14 @@ import com.eduverse.eduversebe.repository.CartRepository;
 import com.eduverse.eduversebe.repository.CouponRepository;
 import com.eduverse.eduversebe.repository.CourseRepository;
 import com.eduverse.eduversebe.repository.OrderRepository;
-import com.eduverse.eduversebe.repository.projection.MonthlyEarningProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.OptionalLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +32,7 @@ public class OrderService {
     private final CourseRepository courseRepository;
     private final CouponRepository couponRepository;
     private final CartRepository cartRepository;
+    private final OrderCompletionService orderCompletionService;
 
     public List<Order> getOrders(String userId) {
         return orderRepository.findByUserId(userId, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -132,11 +126,7 @@ public class OrderService {
 
 
         if (newOrder.getStatus() == OrderStatus.completed) {
-            for (Course course : dbCourses) {
-                int currentEnrolled = course.getStudentsEnrolled() != null ? course.getStudentsEnrolled() : 0;
-                course.setStudentsEnrolled(currentEnrolled + 1);
-            }
-            courseRepository.saveAll(dbCourses);
+            orderCompletionService.handleOrderCompleted(newOrder.getUserId(), request.getCourseIds());
         }
 
         if (couponDoc != null) {
@@ -170,90 +160,5 @@ public class OrderService {
         }
 
         throw new AppException(ErrorCodes.UNAUTHORIZED_ACCESS);
-    }
-
-    private List<MonthlyDataItemResponse> fillMissingMonthsHelper(
-            List<MonthlyEarningProjection> raw,
-            Instant start,
-            Instant end
-    ) {
-        Map<YearMonth, Double> dataMap = raw.stream()
-                .collect(Collectors.toMap(
-                        p -> YearMonth.of(p.getYear(), p.getMonth()),
-                        MonthlyEarningProjection::getTotalEarning
-                ));
-
-        YearMonth startMonth = YearMonth.from(
-                start.atZone(ZoneOffset.UTC)
-        );
-        YearMonth endMonth = YearMonth.from(
-                end.atZone(ZoneOffset.UTC)
-        );
-
-        List<MonthlyDataItemResponse> result = new ArrayList<>();
-        YearMonth cursor = startMonth;
-
-        while (!cursor.isAfter(endMonth)) {
-            result.add(MonthlyDataItemResponse.builder()
-                    .period(cursor)
-                    .value(dataMap.getOrDefault(cursor, 0.0))
-                    .build());
-            cursor = cursor.plusMonths(1);
-        }
-
-        return result;
-    }
-
-    public List<MonthlyDataItemResponse> getCoursesMonthlyEarningPast12Months(List<String> courseIds) {
-        if (courseIds == null) courseIds = List.of();
-
-        Instant start = YearMonth
-                .now()
-                .minusMonths(11)
-                .atDay(1)
-                .atStartOfDay(ZoneOffset.UTC)
-                .toInstant();
-
-        Instant end = Instant.now();
-
-        return fillMissingMonthsHelper(
-                orderRepository.getCoursesMonthlyEarningFromRange(courseIds, start, end),
-                start,
-                end
-        );
-    }
-
-    public List<CourseEarningDataResponse> getTop5EarningCoursesThisMonth(List<String> courseIds) {
-        if (courseIds == null) courseIds = List.of();
-
-        int limit = Math.min(5, courseIds.size());
-
-        YearMonth now = YearMonth.now(ZoneOffset.UTC);
-
-        Instant startOfMonth = now
-                .atDay(1)
-                .atStartOfDay(ZoneOffset.UTC)
-                .toInstant();
-
-        Instant startOfNextMonth = now
-                .plusMonths(1)
-                .atDay(1)
-                .atStartOfDay(ZoneOffset.UTC)
-                .toInstant();
-
-        return orderRepository.getTopEarningCoursesThisMonth(courseIds, startOfMonth, startOfNextMonth, limit)
-                .stream()
-                .map(c -> CourseEarningDataResponse.builder()
-                        .id(c.getCourseId())
-                        .title(c.getTitle())
-                        .totalEarning(c.getTotalEarning())
-                        .totalSales(c.getTotalSales())
-                        .build())
-                .toList();
-    }
-
-    public long countCompletedOrdersByCourseIds(List<String> courseIds) {
-        if (courseIds == null) courseIds = List.of();
-        return OptionalLong.of(orderRepository.countCompletedOrdersByCourseIds(courseIds)).orElse(0L);
     }
 }

@@ -53,7 +53,7 @@ spring:
 
 application:
   client:
-    url: ${CLIENT_URLS:http://localhost:5173}
+    url: ${CLIENT_URL}
   security:
     jwt:
       expiration: ${JWT_EXPIRATION:604800000}

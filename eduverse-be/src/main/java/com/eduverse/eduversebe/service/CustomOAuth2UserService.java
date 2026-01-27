@@ -18,6 +18,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final StudentService studentService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -54,7 +55,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .isActivated(true)
                         .role(UserRole.student)
                         .build();
-                userRepository.save(user);
+                User savedUser = userRepository.save(user);
+
+                if (!studentService.existsByUserId(savedUser.getId())) {
+                    studentService.createNewStudent(savedUser.getId());
+                }
             }
         }
 

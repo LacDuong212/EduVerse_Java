@@ -5,16 +5,11 @@ import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.common.globalEnums.OrderStatus;
 import com.eduverse.eduversebe.dto.response.PaymentResponse;
-import com.eduverse.eduversebe.model.Course;
 import com.eduverse.eduversebe.model.Order;
 import com.eduverse.eduversebe.repository.OrderRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -34,9 +29,11 @@ import java.util.*;
 public class PaymentService {
 
     private final PaymentConfig paymentConfig;
+
     private final OrderRepository orderRepository;
-    private final MongoTemplate mongoTemplate;
     private final RestTemplate restTemplate = new RestTemplate();
+
+    private final OrderCompletionService orderCompletionService;
 
     public PaymentResponse createPayment(String userId, String orderId, String paymentMethod, HttpServletRequest request) {
         Order order = orderRepository.findById(orderId)
@@ -177,20 +174,12 @@ public class PaymentService {
         order.setExpiresAt(null);
         orderRepository.save(order);
 
-        // Đếm số lượng enrollment cho từng course
-        Map<String, Integer> courseCounts = new HashMap<>();
-        for (Order.OrderItem item : order.getCourses()) {
-            courseCounts.put(item.getCourseId(), courseCounts.getOrDefault(item.getCourseId(), 0) + 1);
-        }
+        // lấy danh sách id của các course
+        List<String> courseIds = order.getCourses().stream()
+                .map(Order.OrderItem::getCourseId)
+                .toList();
 
-        // Bulk Update trong MongoDB
-        for (Map.Entry<String, Integer> entry : courseCounts.entrySet()) {
-            mongoTemplate.updateFirst(
-                    Query.query(Criteria.where("_id").is(entry.getKey())),
-                    new Update().inc("studentsEnrolled", entry.getValue()),
-                    Course.class
-            );
-        }
+        orderCompletionService.handleOrderCompleted(order.getUserId(), courseIds);
     }
 
     // --- 5. VERIFY SIGNATURES ---

@@ -3,6 +3,7 @@ package com.eduverse.eduversebe.model;
 import com.eduverse.eduversebe.common.model.BaseEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -20,6 +21,7 @@ import java.util.List;
 @Document(collection = "instructors")
 public class Instructor extends BaseEntity {
 
+    @Indexed(unique = true)
     @Field(value = "user", targetType = FieldType.OBJECT_ID)
     private String userId;
 

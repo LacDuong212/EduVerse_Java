@@ -1,6 +1,7 @@
 package com.eduverse.eduversebe.repository;
 
 import com.eduverse.eduversebe.model.Order;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import com.eduverse.eduversebe.repository.projection.CourseEarningThisMonth;
 import com.eduverse.eduversebe.repository.projection.MonthlyEarningProjection;
@@ -57,12 +58,12 @@ public interface OrderRepository extends MongoRepository<Order,String> {
     @Aggregation(pipeline = {
             "{ $match: { " +
                     "status: 'completed', " +
-                    "createdAt: { $gte: ?1, $lt: ?2 } " +
+                    "updatedAt: { $gte: ?1, $lt: ?2 } " +
                     "} }",
-            "{ $unwind: '$courses' }",
-            "{ $match: { 'courses.courseId': { $in: ?0 } } }",
+            "{ $unwind: '$courses' }",  // unwind -> USE ObjectId & field names stored in mongo
+            "{ $match: { 'courses.course': { $in: ?0 } } }",
             "{ $group: { " +
-                    "_id: '$courses.courseId', " +
+                    "_id: '$courses.course', " +
                     "totalEarning: { $sum: '$courses.pricePaid' }, " +
                     "totalSales: { $sum: 1 } " +
                     "} }",
@@ -84,7 +85,7 @@ public interface OrderRepository extends MongoRepository<Order,String> {
                     "} }"
     })
     List<CourseEarningThisMonth> getTopEarningCoursesThisMonth(
-            List<String> courseIds,
+            List<ObjectId> courseIds,
             Instant startOfMonth,
             Instant startOfNextMonth,
             int limit
