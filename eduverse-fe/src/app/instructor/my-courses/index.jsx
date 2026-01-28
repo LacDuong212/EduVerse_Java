@@ -4,7 +4,6 @@ import useInstructorMyCourses from "./useInstructorMyCourses";
 import MyCoursesHero from "./components/Hero";
 import MyCourses from "./components/MyCourses";
 
-
 const InstructorMyCourses = () => {
   const {
     courses,
@@ -21,9 +20,7 @@ const InstructorMyCourses = () => {
   return (
     <>
       <PageMetaData title="My Courses" />
-
       <MyCoursesHero stats={stats} />
-
       <Container className="py-5">
         <MyCourses
           courses={courses}
@@ -32,10 +29,8 @@ const InstructorMyCourses = () => {
           limit={pagination.limit || 5}
           totalPages={pagination.totalPages}
           loading={loading}
-
           onPageChange={setPage}
           onTogglePrivacy={updateCoursePrivacy}
-
           onSearch={setSearch}
           onSortChange={setSort}
         />

@@ -16,6 +16,7 @@ public final class ApiPaths {
 
         public static final String CHART = ROOT + "/charts";
         public static final String MY_COURSES = ROOT + "/courses";
+        public static final String MY_STUDENTS = ROOT + "/students";
         public static final String STATS = ROOT + "/stats";
     }
 

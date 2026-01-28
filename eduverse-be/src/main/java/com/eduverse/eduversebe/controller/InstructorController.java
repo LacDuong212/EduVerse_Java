@@ -37,7 +37,7 @@ public class InstructorController {
     @GetMapping(ApiPaths.Instructor.MY_COURSES + "/list")
     public ResponseEntity<?> getCoursesList(@AuthenticationPrincipal User currentUser,
                                             @RequestParam(defaultValue = "1") Integer page,
-                                            @RequestParam(defaultValue = "10") Integer limit,
+                                            @RequestParam(defaultValue = "5") Integer limit,
                                             @RequestParam(defaultValue = "") String search,
                                             @RequestParam(defaultValue = "") String sort) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -57,6 +57,32 @@ public class InstructorController {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MY_COURSES_STATS_SUCCESS,
                 instructorService.getInstructorCoursesStats(currentUser.getId())
+        ));
+    }
+
+    @GetMapping(ApiPaths.Instructor.MY_STUDENTS + "/list")
+    public ResponseEntity<?> getStudentsList(@AuthenticationPrincipal User currentUser,
+                                            @RequestParam(defaultValue = "1") Integer page,
+                                            @RequestParam(defaultValue = "10") Integer limit,
+                                            @RequestParam(defaultValue = "") String search,
+                                            @RequestParam(defaultValue = "") String sort) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_MY_STUDENTS_LIST_SUCCESS,
+                instructorService.getInstructorStudentsListMatchCriteria(
+                        currentUser.getId(),
+                        page,
+                        limit,
+                        search,
+                        sort
+                )
+        ));
+    }
+
+    @GetMapping(ApiPaths.Instructor.MY_STUDENTS + "/stats")
+    public ResponseEntity<?> getStudentsStats(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_MY_STUDENTS_STATS_SUCCESS,
+                instructorService.getInstructorStudentsStats(currentUser.getId())
         ));
     }
 

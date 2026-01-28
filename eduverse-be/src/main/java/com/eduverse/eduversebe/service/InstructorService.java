@@ -5,9 +5,11 @@ import com.eduverse.eduversebe.common.globalEnums.CourseStatus;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.dto.request.UpdateCoursePrivacyRequest;
 import com.eduverse.eduversebe.dto.response.*;
+import com.eduverse.eduversebe.dto.response.instructor.*;
 import com.eduverse.eduversebe.model.Instructor;
 import com.eduverse.eduversebe.repository.InstructorRepository;
 import com.eduverse.eduversebe.repository.OrderRepository;
+import com.eduverse.eduversebe.repository.UserRepository;
 import com.eduverse.eduversebe.repository.projection.MonthlyEarningProjection;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
@@ -29,11 +31,13 @@ import java.util.stream.Collectors;
 public class InstructorService {
 
     private final InstructorRepository instructorRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
 
     private final CourseService courseService;
     private final ReviewService reviewService;
-    private final OrderRepository orderRepository;
+    private final StudentService studentService;
 
     private List<MonthlyDataItemResponse> fillMissingMonthsHelper(
             List<MonthlyEarningProjection> raw,
@@ -95,11 +99,11 @@ public class InstructorService {
                 .toList();
     }
 
-    public InstructorStatsResponse getInstructorStats(String userId) {
+    public InstructorStats getInstructorStats(String userId) {
         List<String> courseIds = this.getInstructorCourseIds(userId);
-        if (courseIds.isEmpty()) return InstructorStatsResponse.builder().build();
+        if (courseIds.isEmpty()) return InstructorStats.builder().build();
 
-        return InstructorStatsResponse.builder()
+        return InstructorStats.builder()
                 .totalCourses(courseIds.size())
                 .totalStudents(this.getInstructorStudentIds(userId).size())
                 .totalOrders(this.countCompletedOrdersByCourseIds(courseIds))
@@ -158,7 +162,7 @@ public class InstructorService {
                 .toList();
     }
 
-    public PageResponse<InstructorCoursesListItemResponse> getInstructorCoursesListMatchCriteria(
+    public PageResponse<CoursesListItem> getInstructorCoursesListMatchCriteria(
             String userId,
             int page,
             int limit,
@@ -178,8 +182,8 @@ public class InstructorService {
         return courseService.updateCoursePrivacy(courseId, request.privacy());
     }
 
-    public InstructorCoursesStatsResponse getInstructorCoursesStats(String userId) {
-        return InstructorCoursesStatsResponse.builder()
+    public MyCoursesStats getInstructorCoursesStats(String userId) {
+        return MyCoursesStats.builder()
                 .totalCourses(courseService.countInstructorCourses(userId))
                 .totalLive(courseService.countCoursesWithStatusForInstructor(userId, CourseStatus.Live))
                 .totalPending(courseService.countCoursesWithStatusForInstructor(userId, CourseStatus.Pending))
@@ -202,5 +206,69 @@ public class InstructorService {
                 .set("updatedAt", Instant.now());
 
         mongoTemplate.updateMulti(query, update, Instructor.class);
+    }
+
+    public PageResponse<StudentsListItem> getInstructorStudentsListMatchCriteria(
+            String userId,
+            int page,
+            int limit,
+            String searchKey,
+            String sortKey
+    ) {
+        List<ObjectId> studentIds = this.getInstructorStudentIds(userId).stream()
+                .map(ObjectId::new).toList();
+        List<ObjectId> courseIds = this.getInstructorCourseIds(userId).stream()
+                .map(ObjectId::new).toList();
+
+        List<StudentsListItem> results = studentService.getStudentsListForInstructor(
+                studentIds,
+                courseIds,
+                searchKey,
+                sortKey
+        );
+
+        int total = results.size();
+        int pageNum = Math.max(page, 1);
+        int pageSize = Math.max(limit, 10);
+        int fromIndex = (pageNum - 1) * pageSize;
+        List<StudentsListItem> paginatedList;
+
+        if (fromIndex >= total) {
+            paginatedList = new ArrayList<>();
+        } else {
+            int toIndex = Math.min(fromIndex + pageSize, total);
+            paginatedList = results.subList(fromIndex, toIndex);
+        }
+
+        return PageResponse.<StudentsListItem>builder()
+                .data(paginatedList)
+                .pagination(PageResponse.Pagination.builder()
+                        .total(total)
+                        .page(pageNum)
+                        .totalPages((int) Math.ceil((double) total / pageSize))
+                        .build())
+                .build();
+    }
+
+    public MyStudentsStats getInstructorStudentsStats(String userId) {
+        List<String> studentIds = getInstructorStudentIds(userId);
+
+        if (studentIds.isEmpty()) {
+            return MyStudentsStats.builder()
+                    .totalStudents(0)
+                    .totalActive(0)
+                    .totalInactive(0)
+                    .build();
+        }
+
+        int studentCount = studentIds.size();
+        int activatedCount = Optional.ofNullable(userRepository.countByIdInAndIsActivated(studentIds, true))
+                .orElse(0);
+
+        return MyStudentsStats.builder()
+                .totalStudents(studentCount)
+                .totalActive(activatedCount)
+                .totalInactive(studentCount - activatedCount)
+                .build();
     }
 }

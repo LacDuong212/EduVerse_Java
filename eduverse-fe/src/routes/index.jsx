@@ -13,7 +13,7 @@ import InstructorDashboard from "../app/instructor/dashboard";
 // import InstructorEarnings from '../app/instructor/earnings';
 // import InstructorManageCoursePage from "../app/instructor/manage-course";
 import InstructorMyCourses from "../app/instructor/my-courses";
-// import InstructorMyStudents from "../app/instructor/my-students";
+import InstructorMyStudents from "../app/instructor/my-students";
 
 // STUDENT
 const Checkout = lazy(() => import('@/app/shop/checkout/page'));
@@ -120,7 +120,7 @@ export const instructorRoutes = [{
   path: '/instructor/students',
   name: 'My Students',
   isNested: false,
-  // element: <InstructorMyStudents />
+  element: <InstructorMyStudents />
 }, {
   path: '/instructor/profile',
   name: 'My Profile',

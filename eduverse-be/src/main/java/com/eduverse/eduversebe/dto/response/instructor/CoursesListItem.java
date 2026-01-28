@@ -1,4 +1,4 @@
-package com.eduverse.eduversebe.dto.response;
+package com.eduverse.eduversebe.dto.response.instructor;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import java.time.Instant;
 @Builder
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class InstructorCoursesListItemResponse {
+public class CoursesListItem {
     String id;
     String title;
     String subtitle;

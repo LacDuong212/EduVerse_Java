@@ -5,6 +5,7 @@ import com.eduverse.eduversebe.common.globalEnums.CourseStatus;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
 import com.eduverse.eduversebe.dto.response.*;
+import com.eduverse.eduversebe.dto.response.instructor.CoursesListItem;
 import com.eduverse.eduversebe.mapper.CourseMapper;
 import com.eduverse.eduversebe.model.Category;
 import com.eduverse.eduversebe.model.Course;
@@ -332,11 +333,11 @@ public class CourseService {
                 .build();
     }
 
-    public PageResponse<InstructorCoursesListItemResponse> getCoursesMatchCriteriaForInstructor(String instructorId,
-                                                                                        String searchKey,
-                                                                                        String sortKey,
-                                                                                        int pageNum,
-                                                                                        int pageSize) {
+    public PageResponse<CoursesListItem> getCoursesMatchCriteriaForInstructor(String instructorId,
+                                                                              String searchKey,
+                                                                              String sortKey,
+                                                                              int pageNum,
+                                                                              int pageSize) {
         Query query = new Query();
         query.addCriteria(Criteria.where("isDeleted").is(false));
         query.addCriteria(Criteria.where("instructor.ref").in(instructorId));
@@ -353,12 +354,12 @@ public class CourseService {
 
         int total = results.size();
 
-        List<InstructorCoursesListItemResponse> mappedList = getPaginatedList(pageNum, pageSize, results, total)
+        List<CoursesListItem> mappedList = getPaginatedList(pageNum, pageSize, results, total)
                 .stream()
-                .map(courseMapper::toInstructorCoursesListItemResponse)
+                .map(courseMapper::toCoursesListItem)
                 .toList();
 
-        return PageResponse.<InstructorCoursesListItemResponse>builder()
+        return PageResponse.<CoursesListItem>builder()
                 .data(mappedList)
                 .pagination(PageResponse.Pagination.builder()
                         .total(total)

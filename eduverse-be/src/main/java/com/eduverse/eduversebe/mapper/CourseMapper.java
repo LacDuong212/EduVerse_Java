@@ -1,7 +1,7 @@
 package com.eduverse.eduversebe.mapper;
 
 import com.eduverse.eduversebe.dto.response.CourseResponse;
-import com.eduverse.eduversebe.dto.response.InstructorCoursesListItemResponse;
+import com.eduverse.eduversebe.dto.response.instructor.CoursesListItem;
 import com.eduverse.eduversebe.model.Course;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -39,5 +39,5 @@ public interface CourseMapper {
     @Mapping(source = "rating.average", target = "averageRating")
     @Mapping(target = "sectionsCount", expression = "java(course.getCurriculum().size())")
     @Mapping(source = "updatedAt", target = "updatedAt")
-    InstructorCoursesListItemResponse toInstructorCoursesListItemResponse(Course course);
+    CoursesListItem toCoursesListItem(Course course);
 }

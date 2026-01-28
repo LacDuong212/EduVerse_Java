@@ -31,10 +31,6 @@ public enum SuccessCodes {
     GET_ALL_COURSE_SUCCESS(22002, "Get all course successfully", OK),
     GET_COURSE_FILTER_SUCCESS(22003, "Get course filter successfully", OK),
     GET_RECOMMENDATION_SUCCESS(22004, "Get recommendation successfully", OK),
-    GET_TOP_5_COURSES_SUCCESS(22005, "Get top 5 courses successfully", OK),
-    GET_MY_COURSES_LIST_SUCCESS(22006, "Get my courses successfully", OK),
-    GET_MY_COURSES_STATS_SUCCESS(22007, "Get courses stats successfully", OK),
-    UPDATE_COURSE_PRIVACY_SUCCESS(22008, "Update course privacy successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
@@ -77,6 +73,12 @@ public enum SuccessCodes {
     GET_INSTRUCTOR_PROFILE_SUCCESS(30000, "Get instructor profile successfully", OK),
     GET_INSTRUCTOR_STATS_SUCCESS(30001, "Get stats successfully", OK),
     GET_MONTHLY_EARNING_SUCCESS(30002, "Get monthly earning successfully", OK),
+    GET_TOP_5_COURSES_SUCCESS(30003, "Get top 5 courses successfully", OK),
+    GET_MY_COURSES_LIST_SUCCESS(30004, "Get my courses list successfully", OK),
+    GET_MY_COURSES_STATS_SUCCESS(30005, "Get courses stats successfully", OK),
+    UPDATE_COURSE_PRIVACY_SUCCESS(30006, "Update course privacy successfully", OK),
+    GET_MY_STUDENTS_LIST_SUCCESS(30007, "Get my students list successfully", OK),
+    GET_MY_STUDENTS_STATS_SUCCESS(30008, "Get my students stats successfully", OK),
 
     ;
 

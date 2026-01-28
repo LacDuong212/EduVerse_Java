@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 
-export default function useInstructorMyCourses(initialParams = {}) {
+export default function useInstructorMyStudents(initialParams = {}) {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [courses, setCourses] = useState([]);
+  const [students, setStudents] = useState([]);
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
@@ -15,9 +15,9 @@ export default function useInstructorMyCourses(initialParams = {}) {
 
   const [params, setParams] = useState({
     page: 1,
-    limit: 5,
+    limit: 10,
     search: "",
-    sort: "",
+    sort: "nameAsc",
     ...initialParams,
   });
 
@@ -25,7 +25,7 @@ export default function useInstructorMyCourses(initialParams = {}) {
   const [error, setError] = useState(null);
 
 
-  const fetchCourses = useCallback(
+  const fetchStudents = useCallback(
     async (overrideParams = {}) => {
       const finalParams = { ...params, ...overrideParams };
 
@@ -34,7 +34,7 @@ export default function useInstructorMyCourses(initialParams = {}) {
 
       try {
         const res = await axios.get(
-          `${backendUrl}/api/instructor/courses/list`,
+          `${backendUrl}/api/instructor/students/list`,
           {
             params: finalParams,
             withCredentials: true,
@@ -43,7 +43,7 @@ export default function useInstructorMyCourses(initialParams = {}) {
 
         const { data, pagination } = res.data.result;
 
-        setCourses(data);
+        setStudents(data);
         setPagination(pagination);
         setParams(finalParams);
       } catch (err) {
@@ -59,7 +59,7 @@ export default function useInstructorMyCourses(initialParams = {}) {
   const fetchStats = useCallback(async () => {
     try {
       const res = await axios.get(
-        `${backendUrl}/api/instructor/courses/stats`,
+        `${backendUrl}/api/instructor/students/stats`,
         { withCredentials: true }
       );
 
@@ -70,37 +70,14 @@ export default function useInstructorMyCourses(initialParams = {}) {
     }
   }, [backendUrl]);
 
-  const updateCoursePrivacy = useCallback(
-    async (courseId, isPrivate) => {
-      try {
-        await axios.patch(
-          `${backendUrl}/api/instructor/courses/${courseId}/privacy`,
-          { privacy: isPrivate },
-          { withCredentials: true }
-        );
-
-        // optimistic update
-        setCourses((prev) =>
-          prev.map((c) =>
-            c.id === courseId ? { ...c, isPrivate } : c
-          )
-        );
-      } catch (err) {
-        setError(err);
-        throw err;
-      }
-    },
-    [backendUrl]
-  );
-
   useEffect(() => {
-    fetchCourses();
+    fetchStudents();
     fetchStats();
   }, []); // load once on page mount
 
   return {
     // data
-    courses,
+    students,
     pagination,
     stats,
 
@@ -109,15 +86,12 @@ export default function useInstructorMyCourses(initialParams = {}) {
     error,
 
     // list controls
-    setPage: (page) => fetchCourses({ page }),
-    setSearch: (search) => fetchCourses({ page: 1, search }),
-    setSort: (sort) => fetchCourses({ page: 1, sort }),
-    refetchList: fetchCourses,
+    setPage: (page) => fetchStudents({ page }),
+    setSearch: (search) => fetchStudents({ page: 1, search }),
+    setSort: (sort) => fetchStudents({ page: 1, sort }),
+    refetchList: fetchStudents,
 
     // stats
     refetchStats: fetchStats,
-
-    // actions
-    updateCoursePrivacy,
   };
 }
