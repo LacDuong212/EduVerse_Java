@@ -14,7 +14,7 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "learning_streaks")
+@Document(collection = "learningstreaks")
 public class LearningStreak extends BaseEntity {
 
     @Indexed(unique = true)

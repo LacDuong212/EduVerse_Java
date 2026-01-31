@@ -79,6 +79,10 @@ public enum SuccessCodes {
     UPDATE_COURSE_PRIVACY_SUCCESS(30006, "Update course privacy successfully", OK),
     GET_MY_STUDENTS_LIST_SUCCESS(30007, "Get my students list successfully", OK),
     GET_MY_STUDENTS_STATS_SUCCESS(30008, "Get my students stats successfully", OK),
+    GET_UPLOAD_URL_SUCCESS(30009, "Get video upload url successfully", OK),
+
+    //--Video (31xxx)
+    GET_VIDEO_SUCCESS(31000, "Get video successfully", OK),
 
     ;
 

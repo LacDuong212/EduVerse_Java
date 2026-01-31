@@ -89,6 +89,18 @@ socket-server:
   host: 0.0.0.0
   port: 8085
 
+video:
+  draft-duration: 24h
+  upload-duration: 2h
+  view-duration: 3h
+
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION:ap-southeast-1}
+  s3:
+    bucket-name: ${AWS_S3_BUCKET}
+
 payment:
   client-url: ${CLIENT_URL}
 
@@ -105,3 +117,4 @@ payment:
     hash-secret: ${VNP_HASH_SECRET}
     url: ${VNP_URL}
     return-url: ${VNP_RETURN_URL}
+

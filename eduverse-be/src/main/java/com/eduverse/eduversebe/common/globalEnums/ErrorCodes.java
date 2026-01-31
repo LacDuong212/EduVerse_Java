@@ -68,6 +68,9 @@ public enum ErrorCodes {
     //--Student (20xxx)
     ADD_COURSES_FAILED(20001, "There are no courses to add", BAD_REQUEST),
 
+    //-- Video (21xxx)
+    DELETE_VIDEO_FAILED(21000, "Failed to delete video", BAD_REQUEST),
+
     ;
 
     int responseCode;

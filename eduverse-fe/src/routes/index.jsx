@@ -14,6 +14,7 @@ import InstructorDashboard from "../app/instructor/dashboard";
 // import InstructorManageCoursePage from "../app/instructor/manage-course";
 import InstructorMyCourses from "../app/instructor/my-courses";
 import InstructorMyStudents from "../app/instructor/my-students";
+// import VideoTest from '../app/instructor/tmp/video-test';
 
 // STUDENT
 const Checkout = lazy(() => import('@/app/shop/checkout/page'));
@@ -151,6 +152,11 @@ export const instructorRoutes = [{
   name: 'Update Course',
   isNested: false,
   // element: <InstructorCourseDetail />
+// }, {
+//   path: '/instructor/tmp/video-test',
+//   name: 'Video Test',
+//   isNested: false,
+//   element: <VideoTest />
 }];
 
 export const studentRoutes = [{

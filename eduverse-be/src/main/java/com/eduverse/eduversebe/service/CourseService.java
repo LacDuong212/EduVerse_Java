@@ -426,4 +426,10 @@ public class CourseService {
         ));
         bulkOps.execute();
     }
+
+    public String getInstructorIdFromCourseId(String courseId) {
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course == null) return null;
+        else return course.getInstructor().getRef();
+    }
 }

@@ -16,7 +16,7 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "course_progress")
+@Document(collection = "courseprogresses")
 @CompoundIndex(name = "user_course_idx", def = "{'userId': 1, 'courseId': 1}", unique = true)
 public class CourseProgress extends BaseEntity {
 

@@ -14,10 +14,11 @@ public final class ApiPaths {
         private Instructor() {}
         public static final String ROOT = API + "/instructor";
 
-        public static final String CHART = ROOT + "/charts";
+        public static final String CHARTS = ROOT + "/charts";
         public static final String MY_COURSES = ROOT + "/courses";
         public static final String MY_STUDENTS = ROOT + "/students";
         public static final String STATS = ROOT + "/stats";
+        public static final String VIDEOS = ROOT + "/videos";
     }
 
     public static final class Instructors {

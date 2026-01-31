@@ -8,17 +8,17 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "draft_videos")
+@Document(collection = "draftvideos")
 public class DraftVideo extends BaseEntity {
 
     private String key;
     private String contentType;
-    private LocalDateTime expireAt;
+    private Instant expireAt;
 }

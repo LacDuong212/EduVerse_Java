@@ -6,8 +6,11 @@ import com.eduverse.eduversebe.common.exception.AppException;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.request.UpdateCoursePrivacyRequest;
+import com.eduverse.eduversebe.dto.request.UploadVideoRequest;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.InstructorService;
+import com.eduverse.eduversebe.service.VideoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,8 +20,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class InstructorController {
     private final InstructorService instructorService;
+    private final VideoService videoService;
 
-    @GetMapping(ApiPaths.Instructor.CHART + "/earning")
+    @GetMapping(ApiPaths.Instructor.CHARTS + "/earning")
     public ResponseEntity<?> getMonthlyEarning(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MONTHLY_EARNING_SUCCESS,
@@ -26,7 +30,7 @@ public class InstructorController {
         ));
     }
 
-    @GetMapping(ApiPaths.Instructor.CHART + "/top-5-courses")
+    @GetMapping(ApiPaths.Instructor.CHARTS + "/top-5-courses")
     public ResponseEntity<?> getTop5Courses(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_TOP_5_COURSES_SUCCESS,
@@ -91,6 +95,19 @@ public class InstructorController {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_INSTRUCTOR_STATS_SUCCESS,
                 instructorService.getInstructorStats(currentUser.getId())
+        ));
+    }
+
+    @PostMapping(ApiPaths.Instructor.VIDEOS)
+    public ResponseEntity<?> getVideoUploadUrl(@AuthenticationPrincipal User currentUser,
+                                               @Valid UploadVideoRequest uploadVideoRequest) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_UPLOAD_URL_SUCCESS,
+                videoService.getVideoUploadUrl(
+                        currentUser.getId(),
+                        uploadVideoRequest.getExtension(),
+                        uploadVideoRequest.getContentType()
+                )
         ));
     }
 
