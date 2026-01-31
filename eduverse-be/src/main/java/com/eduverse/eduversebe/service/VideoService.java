@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +48,7 @@ public class VideoService {
     }
 
     public String getVideoStreamUrl(String instructorOrCourseId, String videoId) {
-        String instructorId = "edv";
+        String instructorId;
         if (instructorRepository.existsByUserId(instructorOrCourseId)) {
             instructorId = instructorOrCourseId;
         } else {
@@ -61,10 +60,5 @@ public class VideoService {
         return s3VideoService.createVideoViewUrl(
                 s3VideoService.getKey(instructorId, videoId)
         );
-    }
-
-    public void deleteVideo(String courseId, String videoId) {
-        if (!s3VideoService.deleteVideoByKey(s3VideoService.getKey(courseId, videoId)))
-            throw new AppException(ErrorCodes.DELETE_VIDEO_FAILED);
     }
 }

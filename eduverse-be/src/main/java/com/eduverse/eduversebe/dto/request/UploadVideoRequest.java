@@ -1,7 +1,6 @@
 package com.eduverse.eduversebe.dto.request;
 
 import lombok.Data;
-import lombok.NonNull;
 
 @Data
 public class UploadVideoRequest {

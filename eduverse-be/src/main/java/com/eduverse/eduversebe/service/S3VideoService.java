@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -18,8 +15,10 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -115,6 +114,38 @@ public class S3VideoService {
         } catch (S3Exception e) {
             log.error("S3 Delete Error: {}", e.awsErrorDetails().errorMessage());
             return false;
+        }
+    }
+
+    // DELETE: Batch video removal
+    public void deleteVideosByKeys(List<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
+
+        List<ObjectIdentifier> identifiers = keys.stream()
+                .map(key -> ObjectIdentifier.builder().key(key).build())
+                .collect(Collectors.toList());
+
+        try {
+            Delete deleteConfig = Delete.builder()
+                    .objects(identifiers)
+                    .quiet(true) // so that S3 won't return a detailed list of every successful deletion
+                    .build();
+
+            DeleteObjectsRequest multiDeleteRequest = DeleteObjectsRequest.builder()
+                    .bucket(bucketName)
+                    .delete(deleteConfig)
+                    .build();
+
+            s3Client.deleteObjects(multiDeleteRequest);
+            log.info("Successfully requested batch deletion of {} objects from S3.", keys.size());
+
+        } catch (S3Exception e) {
+            log.error("AWS S3 Batch Delete Error: {} - Code: {}",
+                    e.awsErrorDetails().errorMessage(),
+                    e.awsErrorDetails().errorCode());
+            // retry?
         }
     }
 }
