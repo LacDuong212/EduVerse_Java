@@ -4,6 +4,7 @@ import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.response.UserResponse;
 import com.eduverse.eduversebe.model.User;
+import com.eduverse.eduversebe.service.ImageService;
 import com.eduverse.eduversebe.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final ImageService imageService;
 
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getProfile(
@@ -26,5 +28,13 @@ public class UserController {
         UserResponse profile = userService.getProfile(currentUser.getId());
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCodes.LOGIN_SUCCESS, profile));
+    }
+
+    @GetMapping("/avatar")
+    public ResponseEntity<?> getAvatarUploadSignature(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_AVATAR_UPLOAD_SIGNATURE_SUCCESS,
+                imageService.getAvatarUploadParams(currentUser.getId())
+        ));
     }
 }

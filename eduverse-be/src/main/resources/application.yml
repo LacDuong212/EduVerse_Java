@@ -101,6 +101,11 @@ aws:
   s3:
     bucket-name: ${AWS_S3_BUCKET}
 
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
 payment:
   client-url: ${CLIENT_URL}
 

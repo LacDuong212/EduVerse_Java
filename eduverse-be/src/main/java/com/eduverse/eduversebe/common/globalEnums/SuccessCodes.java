@@ -23,7 +23,7 @@ public enum SuccessCodes {
     PASSWORD_RESET_SUCCESS(21004, "Password reset successfully", OK),
     LOGOUT_SUCCESS(21005, "Logout successful", OK),
     SEND_OTP_SUCCESS(21006, "OTP sent. Please check your email!", OK),
-
+    GET_AVATAR_UPLOAD_SIGNATURE_SUCCESS(21007, "Get avatar upload signature successfully", OK),
 
     //--Course (22xxx)
     GET_COURSE_STATS_SUCCESS(22000, "Get course stats successfully", OK),
