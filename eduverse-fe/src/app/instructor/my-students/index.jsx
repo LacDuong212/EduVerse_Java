@@ -1,5 +1,6 @@
 import { Container } from "react-bootstrap";
 import PageMetaData from "@/components/PageMetaData";
+import Preloader from "@/components/Preloader";
 import useInstructorMyStudents from "./useInstructorMyStudents";
 import MyStudentsHero from "./components/Hero";
 import MyStudentsList from "./components/MyStudents";
@@ -14,8 +15,13 @@ const InstructorMyStudents = () => {
     setPage,
     setSearch,
     setSort,
-    updateCoursePrivacy,
   } = useInstructorMyStudents();
+
+  if (loading) {
+    return (
+      <Preloader />
+    );
+  }
 
   return (
     <>

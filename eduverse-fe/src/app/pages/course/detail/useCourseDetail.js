@@ -61,7 +61,7 @@ export default function useCourseDetail() {
 
   // check ownership (PRIVATE)
   const checkOwned = useCallback(async (signal) => {
-    if (!userData?._id || userData?.role.toLowerCase() !== "student" || !id || !backendUrl) {
+    if (!userData?.id || userData?.role.toLowerCase() !== "student" || !id || !backendUrl) {
       setOwned(false);
       setOwnedChecking(false);
       return;
@@ -86,7 +86,7 @@ export default function useCourseDetail() {
     } finally {
       setOwnedChecking(false);
     }
-  }, [id, backendUrl, userData?._id]);
+  }, [id, backendUrl, userData?.id]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -126,7 +126,7 @@ export default function useCourseDetail() {
 
   // cart action
   const handleAddToCart = async () => {
-    if (!userData?._id) {
+    if (!userData?.id) {
       toast.info("Please login to add to cart");
       return;
     }

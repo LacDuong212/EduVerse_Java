@@ -7,7 +7,6 @@ import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.request.UpdateCoursePrivacyRequest;
 import com.eduverse.eduversebe.dto.request.UploadVideoRequest;
-import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.InstructorService;
 import com.eduverse.eduversebe.service.VideoService;
 import jakarta.validation.Valid;
@@ -23,23 +22,23 @@ public class InstructorController {
     private final VideoService videoService;
 
     @GetMapping(ApiPaths.Instructor.CHARTS + "/earning")
-    public ResponseEntity<?> getMonthlyEarning(@AuthenticationPrincipal User currentUser) {
+    public ResponseEntity<?> getMonthlyEarning(@AuthenticationPrincipal(expression = "id") String userId) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MONTHLY_EARNING_SUCCESS,
-                instructorService.getCoursesMonthlyEarningPast12Months(currentUser.getId())
+                instructorService.getCoursesMonthlyEarningPast12Months(userId)
         ));
     }
 
     @GetMapping(ApiPaths.Instructor.CHARTS + "/top-5-courses")
-    public ResponseEntity<?> getTop5Courses(@AuthenticationPrincipal User currentUser) {
+    public ResponseEntity<?> getTop5Courses(@AuthenticationPrincipal(expression = "id") String userId) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_TOP_5_COURSES_SUCCESS,
-                instructorService.getTop5EarningCoursesThisMonth(currentUser.getId())
+                instructorService.getTop5EarningCoursesThisMonth(userId)
         ));
     }
 
     @GetMapping(ApiPaths.Instructor.MY_COURSES + "/list")
-    public ResponseEntity<?> getCoursesList(@AuthenticationPrincipal User currentUser,
+    public ResponseEntity<?> getCoursesList(@AuthenticationPrincipal(expression = "id") String userId,
                                             @RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "5") Integer limit,
                                             @RequestParam(defaultValue = "") String search,
@@ -47,7 +46,7 @@ public class InstructorController {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MY_COURSES_LIST_SUCCESS,
                 instructorService.getInstructorCoursesListMatchCriteria(
-                        currentUser.getId(),
+                        userId,
                         page,
                         limit,
                         search,
@@ -57,15 +56,15 @@ public class InstructorController {
     }
 
     @GetMapping(ApiPaths.Instructor.MY_COURSES + "/stats")
-    public ResponseEntity<?> getCoursesStats(@AuthenticationPrincipal User currentUser) {
+    public ResponseEntity<?> getCoursesStats(@AuthenticationPrincipal(expression = "id") String userId) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MY_COURSES_STATS_SUCCESS,
-                instructorService.getInstructorCoursesStats(currentUser.getId())
+                instructorService.getInstructorCoursesStats(userId)
         ));
     }
 
     @GetMapping(ApiPaths.Instructor.MY_STUDENTS + "/list")
-    public ResponseEntity<?> getStudentsList(@AuthenticationPrincipal User currentUser,
+    public ResponseEntity<?> getStudentsList(@AuthenticationPrincipal(expression = "id") String userId,
                                             @RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "10") Integer limit,
                                             @RequestParam(defaultValue = "") String search,
@@ -73,7 +72,7 @@ public class InstructorController {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MY_STUDENTS_LIST_SUCCESS,
                 instructorService.getInstructorStudentsListMatchCriteria(
-                        currentUser.getId(),
+                        userId,
                         page,
                         limit,
                         search,
@@ -83,28 +82,28 @@ public class InstructorController {
     }
 
     @GetMapping(ApiPaths.Instructor.MY_STUDENTS + "/stats")
-    public ResponseEntity<?> getStudentsStats(@AuthenticationPrincipal User currentUser) {
+    public ResponseEntity<?> getStudentsStats(@AuthenticationPrincipal(expression = "id") String userId) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MY_STUDENTS_STATS_SUCCESS,
-                instructorService.getInstructorStudentsStats(currentUser.getId())
+                instructorService.getInstructorStudentsStats(userId)
         ));
     }
 
     @GetMapping(ApiPaths.Instructor.STATS)
-    public ResponseEntity<?> getInstructorStats(@AuthenticationPrincipal User currentUser) {
+    public ResponseEntity<?> getInstructorStats(@AuthenticationPrincipal(expression = "id") String userId) {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_INSTRUCTOR_STATS_SUCCESS,
-                instructorService.getInstructorStats(currentUser.getId())
+                instructorService.getInstructorStats(userId)
         ));
     }
 
     @PostMapping(ApiPaths.Instructor.VIDEOS)
-    public ResponseEntity<?> getVideoUploadUrl(@AuthenticationPrincipal User currentUser,
+    public ResponseEntity<?> getVideoUploadUrl(@AuthenticationPrincipal(expression = "id") String userId,
                                                @Valid UploadVideoRequest uploadVideoRequest) {
         return ResponseEntity.ok(ApiResponse.success(
-                SuccessCodes.GET_UPLOAD_URL_SUCCESS,
+                SuccessCodes.GET_VIDEO_UPLOAD_URL_SUCCESS,
                 videoService.getVideoUploadUrl(
-                        currentUser.getId(),
+                        userId,
                         uploadVideoRequest.getExtension(),
                         uploadVideoRequest.getContentType()
                 )
@@ -112,10 +111,10 @@ public class InstructorController {
     }
 
     @PatchMapping(ApiPaths.Instructor.MY_COURSES + "/{courseId}/privacy")
-    public ResponseEntity<?> changeCoursePrivacy(@AuthenticationPrincipal User currentUser,
+    public ResponseEntity<?> changeCoursePrivacy(@AuthenticationPrincipal(expression = "id") String userId,
                                                  @PathVariable String courseId,
                                                  @RequestBody UpdateCoursePrivacyRequest request) {
-        if (!instructorService.checkCourseOwnership(currentUser.getId(), courseId))
+        if (!instructorService.checkCourseOwnership(userId, courseId))
             throw new AppException(ErrorCodes.COURSE_ACCESS_DENIED);
 
         if (instructorService.changeCoursePrivacy(courseId, request))

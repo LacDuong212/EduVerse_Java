@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @Builder
 public class UserResponse {
-    private String _id;
+    private String id;
     private String name;
     private String email;
     private String phoneNumber;

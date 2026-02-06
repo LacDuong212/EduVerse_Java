@@ -1,5 +1,5 @@
 import GlightBox from '@/components/GlightBox';
-import { useVideoStream } from '@/hooks/useStreamUrl';
+import { useVideoStream } from '@/hooks/useVideoStream';
 import { formatCurrency } from '@/utils/currency';
 import { secondsToDurationHM } from '@/utils/duration';
 import Curriculum from './Curriculum';
@@ -33,7 +33,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 
 const PricingCard = ({ course, owned, onShowCurriculum, onAddToCart, courseId }) => {
-  const { streamUrl, loading: videoLoading, error: videoError } = useVideoStream(
+  const { fetchStreamUrl } = useVideoStream();
+  const { streamUrl, loading: videoLoading, error: videoError } = fetchStreamUrl(
     courseId,
     course?.previewVideo
   );

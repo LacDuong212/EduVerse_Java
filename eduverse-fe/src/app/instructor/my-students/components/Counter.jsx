@@ -1,5 +1,5 @@
-import { Col, Row } from 'react-bootstrap';
-import CountUp from 'react-countup';
+import { Col, Row } from "react-bootstrap";
+import CountUp from "react-countup";
 import { BsLightningCharge, BsPauseCircle } from "react-icons/bs";
 import { FaUserGraduate } from "react-icons/fa";
 

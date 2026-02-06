@@ -1,14 +1,13 @@
 import PageMetaData from "@/components/PageMetaData";
+import Preloader from "@/components/preloader";
 import useInstructorDashboard from "./useInstructorDashboard";
 import DashboardCounter from "./components/DashboardCounter";
 import EarningsChart from "./components/EarningsChart";
 import TopCoursesChart from "./components/TopCoursesChart";
 import WelcomeBack from "./components/WelcomeBack";
-import { useEffect, useState } from "react";
 import { Container, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-
 
 const InstructorDashboard = () => {
   const instructorName = useSelector(state => state.auth.userData.name);
@@ -23,9 +22,7 @@ const InstructorDashboard = () => {
 
   if (loading) {
     return (
-      <Container className="d-flex flex-column align-items-center justify-content-center mt-5">
-        <h3>Loading...</h3>
-      </Container>
+      <Preloader />
     );
   }
 

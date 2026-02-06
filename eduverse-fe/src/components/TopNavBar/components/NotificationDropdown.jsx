@@ -95,7 +95,7 @@ const NotificationDropdown = ({ className }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (userData?._id) {
+    if (userData?.id) {
       const fetchNotifications = async () => {
         try {
           const res = await axios.get(`${BACKEND_URL}/api/notifications`, {
@@ -196,7 +196,7 @@ const NotificationDropdown = ({ className }) => {
             <ul className="list-group list-unstyled list-group-flush" style={{ maxHeight: '420px', overflowY: 'auto' }}>
               {notifications.length > 0 ? (
                 notifications.map((noti, idx) => (
-                  <NotificationItem key={noti._id || idx} noti={noti} />
+                  <NotificationItem key={noti.id || idx} noti={noti} />
                 ))
               ) : (
                 <li className="p-4 text-center">

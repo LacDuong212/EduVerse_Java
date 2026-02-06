@@ -1,4 +1,5 @@
 import PageMetaData from '@/components/PageMetaData';
+import Preloader from '@/components/Preloader';
 import CourseDetails from './components/CourseDetails';
 import ListedCourses from './components/ListedCourses';
 import PageIntro from './components/PageIntro';
@@ -70,9 +71,7 @@ const CourseDetail = () => {
 
   if (loading) {
     return (
-      <Container className="d-flex flex-column align-items-center justify-content-center mt-5">
-        <h3>Loading...</h3>
-      </Container>
+      <Preloader />
     );
   }
 

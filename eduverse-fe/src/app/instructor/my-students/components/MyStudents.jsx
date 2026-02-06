@@ -1,7 +1,7 @@
-import ChoicesFormInput from '@/components/form/ChoicesFormInput';
-import { useState } from 'react';
-import { Card, CardBody, CardFooter, CardHeader, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
-import { FaAngleLeft, FaAngleRight, FaRegEnvelope, FaSearch } from 'react-icons/fa';
+import ChoicesFormInput from "@/components/form/ChoicesFormInput";
+import { useState } from "react";
+import { Card, CardBody, CardFooter, CardHeader, Col, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
+import { FaAngleLeft, FaAngleRight, FaRegEnvelope, FaSearch } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -15,7 +15,7 @@ const StudentRow = ({ studentData = {} }) => {
               <img
                 src={studentData?.pfpImg}
                 className="rounded-circle"
-                alt={'avatar'}
+                alt={"avatar"}
               />
             ) : (
               <div className="avatar-img rounded-circle border-white border-3 shadow d-flex align-items-center justify-content-center bg-light text-dark fw-bold fs-4">

@@ -1,6 +1,6 @@
 import error404Img from '@/assets/images/element/error404.svg';
 import { Col, Container, Row } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const NotFoundPage = () => {
   const navigate = useNavigate();

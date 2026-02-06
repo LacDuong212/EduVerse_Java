@@ -1,6 +1,10 @@
 package com.eduverse.eduversebe.service;
 
 import com.cloudinary.Cloudinary;
+import com.eduverse.eduversebe.common.exception.AppException;
+import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
+import com.eduverse.eduversebe.repository.CourseRepository;
+import com.eduverse.eduversebe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +15,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ImageService {
 
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+
     private final Cloudinary cloudinary;
 
     public Map<String, Object> getAvatarUploadParams(String userId) {
+        if (!userRepository.existsById(userId))
+            throw new AppException(ErrorCodes.USER_NOT_FOUND);
+
         return createUploadParams(
                 "u_" + userId + "_avatar",
                 "avatars",
@@ -22,11 +32,14 @@ public class ImageService {
     }
 
     public Map<String, Object> getCourseImageUploadParams(String courseId) {
-        String publicId = "c_" + courseId + "_img-" + (System.currentTimeMillis() / 1000L);
+        if (!courseRepository.existsById(courseId))
+            throw new AppException(ErrorCodes.COURSE_NOT_FOUND);
+
+        String publicId = "c_" + courseId + "_img";
         return createUploadParams(
                 publicId,
                 "courses",
-                "w_1280,h_720,c_fill,g_auto,f_auto,q_auto,d_course_default_image"
+                "w_1200,h_900,c_fill,g_auto,f_auto,q_auto,d_course_default_image"
         );
     }
 

@@ -63,11 +63,10 @@ public class S3VideoService {
         }
 
         String videoId = "LEC" + UUID.randomUUID() + "." + extension;
-        String key = "videos/" + folderName + "/" + videoId;
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(key)
+                .key(this.getKey(folderName, videoId))
                 .contentType(contentType)
                 .build();
 

@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 
 export default function useInstructor() {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const userId = useSelector((state) => state.auth.userData?._id);
+  const userId = useSelector((state) => state.auth.userData?.id);
 
   const fetchPublicFields = async (fields) => {
     if (!userId) {

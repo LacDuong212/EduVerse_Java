@@ -3,7 +3,6 @@ package com.eduverse.eduversebe.controller;
 import com.eduverse.eduversebe.common.api.ApiPaths;
 import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
-import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,18 +18,16 @@ public class VideoController {
 
     private final VideoService videoService;
 
-    @GetMapping(ApiPaths.Courses.ROOT + "/{courseId}/videos/{videoId}")
-    public ResponseEntity<?> getVideoStreamUrlForCourse(@AuthenticationPrincipal User user,
-                                                        @PathVariable String courseId,
+    @GetMapping(ApiPaths.Courses.ROOT + "/{instructorOrCourseId}/videos/{videoId}")
+    public ResponseEntity<?> getVideoStreamUrlForCourse(@AuthenticationPrincipal(expression = "id") String userId,
+                                                        @PathVariable String instructorOrCourseId,
                                                         @PathVariable String videoId) {
-        String userId = user == null ? null : user.getId();
-
-        if (!videoService.isVideoAccessible(userId, courseId, videoId))
+        if (!videoService.isVideoAccessible(userId, instructorOrCourseId, videoId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_VIDEO_SUCCESS,
-                videoService.getVideoStreamUrl(courseId, videoId)
+                videoService.getVideoStreamUrl(instructorOrCourseId, videoId)
         ));
     }
 }

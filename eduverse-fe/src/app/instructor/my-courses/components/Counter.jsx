@@ -1,5 +1,5 @@
-import { Col, Row } from 'react-bootstrap';
-import CountUp from 'react-countup';
+import { Col, Row } from "react-bootstrap";
+import CountUp from "react-countup";
 
 const Counter = ({ stats }) => {
   const colXs = 4;

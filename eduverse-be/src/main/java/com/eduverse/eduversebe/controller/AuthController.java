@@ -112,7 +112,7 @@ public class AuthController {
         User user = (User) authentication.getPrincipal();
 
         UserResponse userResponse = UserResponse.builder()
-                ._id(user.getId())
+                .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())

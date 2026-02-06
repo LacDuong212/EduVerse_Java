@@ -8,7 +8,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(source = "id", target = "_id")
     @Mapping(source = "verified", target = "isVerified")
     UserResponse toUserResponse(User user);
 

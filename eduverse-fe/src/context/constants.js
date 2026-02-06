@@ -5,13 +5,13 @@ export const currentYear = new Date().getFullYear();
 export const OUR_GROUP_NAME = '@d2v-team';
 
 export const DEFAULT_PAGE_TITLE = 'EduVerse';
-export const CREATE_COURSE_DRAFT_STORAGE_KEY = 'EDV_draft_createCourse';
-export const EDIT_COURSE_DRAFT_STORAGE_KEY = 'EDV_draft_editCourse';
+export const CREATE_COURSE_DRAFT_KEY = 'edv-course_create-draft';
+export const EDIT_COURSE_DRAFT_KEY = 'edv-course_edit-draft';
 
 export const colorVariants = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark', 'light'];
 
 export const INSTRUCTOR_WELCOME_SENTENCES = [
-  "How’s your day going so far?",
+  "How's your day going so far?",
   "Did you know? Great teachers inspire greatness in others!",
   "Keep shaping brilliant minds today ✨",
   "Small progress each day adds up to big results 💪",

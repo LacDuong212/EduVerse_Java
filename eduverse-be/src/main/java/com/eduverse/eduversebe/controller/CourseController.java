@@ -1,27 +1,27 @@
 package com.eduverse.eduversebe.controller;
 
+import com.eduverse.eduversebe.common.api.ApiPaths;
 import com.eduverse.eduversebe.common.api.ApiResponse;
 import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
 import com.eduverse.eduversebe.dto.response.*;
 import com.eduverse.eduversebe.model.User;
 import com.eduverse.eduversebe.service.CourseService;
+import com.eduverse.eduversebe.service.ImageService;
 import com.eduverse.eduversebe.service.RecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping(ApiPaths.Courses.ROOT)
 @RequiredArgsConstructor
 public class CourseController {
 
     private final CourseService courseService;
     private final RecommendationService recommendationService;
+    private final ImageService imageService;
 
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<CourseStatsResponse>> getCourseStats() {
@@ -63,5 +63,13 @@ public class CourseController {
         CourseFilterResponse filters = courseService.getCourseFilters();
 
         return ResponseEntity.ok(ApiResponse.success(SuccessCodes.GET_COURSE_FILTER_SUCCESS, filters));
+    }
+
+    @GetMapping("/{courseId}/images")
+    public ResponseEntity<?> getVideoStreamUrlForCourse(@PathVariable String courseId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_IMAGE_UPLOAD_PARAMS_SUCCESS,
+                imageService.getCourseImageUploadParams(courseId)
+        ));
     }
 }

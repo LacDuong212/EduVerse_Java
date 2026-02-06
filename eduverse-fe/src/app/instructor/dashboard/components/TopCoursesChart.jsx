@@ -1,12 +1,12 @@
-import { currency } from '@/context/constants';
-import { formatCurrency } from '@/utils/currency';
-import ReactApexChart from 'react-apexcharts';
-import { Button, Card, CardBody, CardHeader, Col, Row } from 'react-bootstrap';
-import { FaCircle } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { currency } from "@/context/constants";
+import { formatCurrency } from "@/utils/currency";
+import ReactApexChart from "react-apexcharts";
+import { Button, Card, CardBody, CardHeader, Col, Row } from "react-bootstrap";
+import { FaCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const TopCoursesChart = ({ col = 6, topCoursesData = [] }) => {
-  const variants = ['danger', 'warning', 'success', 'primary', 'purple'];
+  const variants = ["danger", "warning", "success", "primary", "purple"];
 
   const series = topCoursesData.map(course => course.totalEarning);
   const labels = topCoursesData.map(course => course.title);
@@ -17,21 +17,21 @@ const TopCoursesChart = ({ col = 6, topCoursesData = [] }) => {
     chart: {
       height: 300,
       width: 300,
-      type: 'donut',
+      type: "donut",
       sparkline: { enabled: true }
     },
     colors: variants.map(variant =>
       getComputedStyle(document.documentElement).getPropertyValue(`--bs-${variant}`).trim()
     ),
     tooltip: {
-      theme: 'dark',
+      theme: "dark",
       y: { formatter: (val) => formatCurrency(val) }
     },
     responsive: [{
       breakpoint: 480,
       options: {
         chart: { width: 200, height: 200 },
-        legend: { position: 'bottom' }
+        legend: { position: "bottom" }
       }
     }]
   };

@@ -31,6 +31,7 @@ public enum SuccessCodes {
     GET_ALL_COURSE_SUCCESS(22002, "Get all course successfully", OK),
     GET_COURSE_FILTER_SUCCESS(22003, "Get course filter successfully", OK),
     GET_RECOMMENDATION_SUCCESS(22004, "Get recommendation successfully", OK),
+    GET_IMAGE_UPLOAD_PARAMS_SUCCESS(22005, "Get image upload params successfully", OK),
 
     //--Category (23xxx)
     GET_ALL_CATEGORIES_SUCCESS(23000, "Get all categories successfully", OK),
@@ -79,7 +80,7 @@ public enum SuccessCodes {
     UPDATE_COURSE_PRIVACY_SUCCESS(30006, "Update course privacy successfully", OK),
     GET_MY_STUDENTS_LIST_SUCCESS(30007, "Get my students list successfully", OK),
     GET_MY_STUDENTS_STATS_SUCCESS(30008, "Get my students stats successfully", OK),
-    GET_UPLOAD_URL_SUCCESS(30009, "Get video upload url successfully", OK),
+    GET_VIDEO_UPLOAD_URL_SUCCESS(30009, "Get video upload url successfully", OK),
 
     //--Video (31xxx)
     GET_VIDEO_SUCCESS(31000, "Get video successfully", OK),

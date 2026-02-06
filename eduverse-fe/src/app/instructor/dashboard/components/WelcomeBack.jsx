@@ -1,15 +1,14 @@
-import element31 from '@/assets/images/element/31.svg';
-import blob7 from '@/assets/images/pattern/07.svg';
-import { INSTRUCTOR_WELCOME_SENTENCES } from '@/context/constants';
-import { useEffect, useState } from 'react';
-import { Col, Row } from 'react-bootstrap';
-
+import element31 from "@/assets/images/element/31.svg";
+import blob7 from "@/assets/images/pattern/07.svg";
+import { INSTRUCTOR_WELCOME_SENTENCES } from "@/context/constants";
+import { useEffect, useState } from "react";
+import { Col, Row } from "react-bootstrap";
 
 const WelcomeBack = ({ instructorName = "" }) => {
   const shape = {
-    position: 'absolute',
-    bottom: '-10%',
-    right: '15%',
+    position: "absolute",
+    bottom: "-10%",
+    right: "15%",
     zIndex: 0
   };
 

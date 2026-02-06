@@ -38,7 +38,7 @@ import BecomeInstructorPage from '../app/student/become-instructor';
 import CourseDetails from "../app/pages/course/detail/page";
 // import InstructorDetailsPage from "../app/pages/instructors/detail";
 // import VideoPlayer from "../app/pages/course/video-player/page";
-// import NotFoundPage from '../app/not-found';
+import NotFoundPage from '../app/not-found';
 
 
 export const publicRoutes = [{
@@ -49,8 +49,7 @@ export const publicRoutes = [{
   path: '/courses',
   name: 'Courses',
   element: <CoursesPage />
-}
-//, {
+// }, {
 //   path: '/courses/:courseId/watch/:lectureId?',
 //   name: 'My Video Player',
 //   isNested: false,
@@ -60,13 +59,11 @@ export const publicRoutes = [{
 //   name: 'Course Result',
 //   isNested: false,
 //   element: <CourseResultPage />
-// }
-, {
+}, {
   path: '/courses/:id',
   name: 'CourseDetails',
   element: <CourseDetails />
-}
-//, {
+// }, {
 //   path: '/instructors',
 //   name: 'All Instructors',
 //   element: <NotFoundPage />
@@ -74,17 +71,15 @@ export const publicRoutes = [{
 //   path: '/instructors/:id',
 //   name: 'Instructor Details',
 //   element: <InstructorDetailsPage />
-// }
-, {
+}, {
   path: '/student/become-instructor',
   name: 'Become Instructor',
   element: <BecomeInstructorPage />
-}]
-//, {
-//   path: '/*',
-//   name: 'Not Found',
-//   element: <NotFoundPage />
-// }];
+}, {
+  path: '/*',
+  name: 'Not Found',
+  element: <NotFoundPage />
+}];
 
 export const authRoutes = [{
   path: '/auth/sign-in',
@@ -143,13 +138,13 @@ export const instructorRoutes = [{
   isNested: false,
   // element: <InstructorManageCoursePage isEdit={false} />
 }, {
-  path: '/instructor/courses/edit/:id',
-  name: 'Update Course',
+  path: '/instructor/courses/:id/edit',
+  name: 'Edit Course',
   isNested: false,
   // element: <InstructorManageCoursePage isEdit={true} />
 }, {
   path: '/instructor/courses/:id',
-  name: 'Update Course',
+  name: 'Course Details',
   isNested: false,
   // element: <InstructorCourseDetail />
 // }, {

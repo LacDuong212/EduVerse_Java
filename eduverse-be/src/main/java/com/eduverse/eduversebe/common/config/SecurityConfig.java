@@ -48,15 +48,17 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/instructor/**").hasAuthority(UserRole.instructor.asAuthority())
+                        .requestMatchers("/api/courses/*/images/**").hasAuthority(UserRole.instructor.asAuthority())
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/courses/**",
+                                "/api/categories/**",
                                 "/v3/api-docs/**",
                                 "/api/payments/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/api/instructor/**").hasAuthority(UserRole.instructor.asAuthority())
                         .anyRequest().authenticated()
                 )
 

@@ -43,7 +43,7 @@ const CourseCard = ({ course }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!userData?._id) {
+    if (!userData?.id) {
       toast.info("Please login to add to wishlist!");
       return;
     }

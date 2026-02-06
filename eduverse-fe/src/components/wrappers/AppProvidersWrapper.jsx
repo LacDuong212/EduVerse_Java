@@ -51,9 +51,9 @@ const AppProvidersWrapper = ({ children }) => {
   useEffect(() => {
     if (isCheckingAuth) return;
 
-    if (userData?._id) {
+    if (userData?.id) {
       if (wishlistStatus === 'idle') {
-        dispatch(fetchWishlist(userData._id));
+        dispatch(fetchWishlist(userData.id));
       }
 
       if (cartStatus === 'idle') {

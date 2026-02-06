@@ -17,7 +17,7 @@ export const SocketContextProvider = ({ children }) => {
   const { userData } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (userData && userData._id) {
+    if (userData && userData.id) {
       const newSocket = io(SOCKET_URL, {
         transports: ['polling', 'websocket'],
         withCredentials: true,
@@ -26,7 +26,7 @@ export const SocketContextProvider = ({ children }) => {
         reconnectionAttempts: 5,
 
         query: {
-            userId: userData._id
+            userId: userData.id
         }
       });
 
@@ -34,7 +34,7 @@ export const SocketContextProvider = ({ children }) => {
 
       newSocket.on("connect", () => {
         console.log("Global Socket Connected:", newSocket.id);
-        newSocket.emit("newUser", userData._id);
+        newSocket.emit("newUser", userData.id);
       });
 
       newSocket.on("getOnlineUsers", (users) => {

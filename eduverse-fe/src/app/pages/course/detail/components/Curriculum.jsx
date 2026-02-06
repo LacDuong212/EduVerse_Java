@@ -28,7 +28,7 @@ import { BsPatchCheckFill } from "react-icons/bs";
 import element1 from "@/assets/images/element/01.svg";
 import { formatCurrency } from "@/utils/currency";
 import { secondsToDuration } from "@/utils/duration";
-import { useVideoStream } from "@/hooks/useStreamUrl";
+import { useVideoStream } from "@/hooks/useVideoStream";
 import useToggle from "@/hooks/useToggle";
 import useCourseDetail from "../useCourseDetail";
 import { useNavigate } from "react-router-dom";
@@ -36,10 +36,10 @@ import GlightBox from "@/components/GlightBox";
 
 
 const LecturePlayButton = ({ courseId, lecture, sectionId }) => {
-  const { streamUrl, loading } = useVideoStream(courseId, lecture.videoUrl);
+  const { streamUrl, isLoading, error } = useVideoStream(courseId, lecture.videoUrl);
 
   // if video is loading
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="btn-round mb-0 stretched-link position-static flex-centered btn btn-sm btn-light">
         <Spinner animation="border" size="sm" style={{ width: "10px", height: "10px" }} />
