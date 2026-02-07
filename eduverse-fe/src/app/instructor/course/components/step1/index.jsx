@@ -96,9 +96,9 @@ const Step1 = (props) => {
         <Col md={6}>
           <FormField controlId="categorySelect" label="Category" required={true} error={errors.category}>
             <ChoicesFormInput
-              value={formData.category}
+              value={formData.categoryId}
               isInvalid={!!errors.category}
-              onChange={(v) => updateField("category", v?.target?.value || v)}
+              onChange={(v) => updateField("categoryId", v?.target?.value || v)}
             >
               {categories?.length > 0 ? (
                 <>

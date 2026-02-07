@@ -4,5 +4,6 @@ public enum CourseStatus {
     Rejected,
     Pending,
     Live,
-    Blocked
+    Blocked,
+    Draft
 }

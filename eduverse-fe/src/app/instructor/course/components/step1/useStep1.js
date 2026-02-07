@@ -9,7 +9,7 @@ export const useStep1 = (draftData, onSave, stepperInstance) => {
   const { categories, loading: categoriesLoading } = useCategories();
 
   const [formData, setFormData] = useState({
-    title: '', subtitle: '', category: '',
+    title: '', subtitle: '', categoryId: '',
     level: '', language: '', duration: '', durationUnit: "second",
     price: '', discountPrice: '', enableDiscount: false,
     description: '', isPrivate: false,

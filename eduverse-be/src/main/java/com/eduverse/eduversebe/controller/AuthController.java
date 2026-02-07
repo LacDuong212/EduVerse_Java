@@ -6,7 +6,6 @@ import com.eduverse.eduversebe.dto.request.*;
 import com.eduverse.eduversebe.dto.response.LoginResponse;
 import com.eduverse.eduversebe.dto.response.UserResponse;
 import com.eduverse.eduversebe.model.User;
-import com.eduverse.eduversebe.repository.UserRepository;
 import com.eduverse.eduversebe.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final UserRepository userRepository;
 
     @Operation(summary = "abc")
     @PostMapping("/register")

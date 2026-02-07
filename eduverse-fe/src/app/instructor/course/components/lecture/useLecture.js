@@ -86,8 +86,8 @@ export const useLecture = (show, initialLecture, onSave, courseId) => {
   }, [filePreviewUrl]);
 
   const previewHref = useMemo(() => {
-    if (filePreviewUrl) return filePreviewUrl; // Priority: New File
-    if (s3StreamUrl) return s3StreamUrl;       // Fallback: Valid ID
+    if (filePreviewUrl) return filePreviewUrl; // priority: new file
+    if (s3StreamUrl) return s3StreamUrl;       // fallback: valid ID
     return null;
   }, [filePreviewUrl, s3StreamUrl]);
 
@@ -103,7 +103,7 @@ export const useLecture = (show, initialLecture, onSave, courseId) => {
       file: null,
       fileName: ''
     });
-    setErrors(prev => ({ ...prev, video: null }));
+    setErrors(prev => ({ ...prev, videoId: null }));
   };
 
   const handleFileChange = async (e) => {
@@ -141,9 +141,12 @@ export const useLecture = (show, initialLecture, onSave, courseId) => {
     const newErrors = {};
     if (!form.title.trim()) newErrors.title = "Lecture title is required.";
 
-    // Must have EITHER a file OR a videoId
-    if (!videoState.file && !videoState.videoId.trim()) {
-      newErrors.video = "Please upload a video or enter a Video ID.";
+    // must have EITHER a file OR a videoId
+    if (!videoState.file) {
+      if (!videoState.videoId.trim())
+        newErrors.video = "Please upload a video or enter a valid Video ID.";
+      if (!isS3Reference)
+        newErrors.videoId = "Please provide a valid video ID.";
     }
 
     return newErrors;

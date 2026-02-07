@@ -6,7 +6,10 @@ import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.dto.request.UpdateCoursePrivacyRequest;
 import com.eduverse.eduversebe.dto.response.*;
 import com.eduverse.eduversebe.dto.response.instructor.*;
+import com.eduverse.eduversebe.mapper.CourseMapper;
+import com.eduverse.eduversebe.model.Course;
 import com.eduverse.eduversebe.model.Instructor;
+import com.eduverse.eduversebe.repository.CourseRepository;
 import com.eduverse.eduversebe.repository.InstructorRepository;
 import com.eduverse.eduversebe.repository.OrderRepository;
 import com.eduverse.eduversebe.repository.UserRepository;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InstructorService {
 
+    private final CourseRepository courseRepository;
     private final InstructorRepository instructorRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
@@ -38,6 +42,8 @@ public class InstructorService {
     private final CourseService courseService;
     private final ReviewService reviewService;
     private final StudentService studentService;
+
+    private final CourseMapper courseMapper;
 
     private List<MonthlyDataItemResponse> fillMissingMonthsHelper(
             List<MonthlyEarningProjection> raw,
@@ -270,5 +276,11 @@ public class InstructorService {
                 .totalActive(activatedCount)
                 .totalInactive(studentCount - activatedCount)
                 .build();
+    }
+
+    public CourseData getInstructorCourseData(String userId, String courseId) {
+        Course course = courseRepository.findByIdAndInstructor_RefAndIsDeletedFalse(courseId, userId);
+        if (course == null) throw new AppException(ErrorCodes.COURSE_NOT_FOUND);
+        else return courseMapper.toCourseData(course);
     }
 }

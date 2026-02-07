@@ -10,6 +10,7 @@ import com.eduverse.eduversebe.dto.request.UploadVideoRequest;
 import com.eduverse.eduversebe.service.InstructorService;
 import com.eduverse.eduversebe.service.VideoService;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,6 +61,15 @@ public class InstructorController {
         return ResponseEntity.ok(ApiResponse.success(
                 SuccessCodes.GET_MY_COURSES_STATS_SUCCESS,
                 instructorService.getInstructorCoursesStats(userId)
+        ));
+    }
+
+    @GetMapping(ApiPaths.Instructor.MY_COURSES + "/{courseId}")
+    public ResponseEntity<?> getCourseData(@AuthenticationPrincipal(expression = "id") String userId,
+                                           @PathVariable @NonNull String courseId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                SuccessCodes.GET_INSTRUCTOR_COURSE_DATA_SUCCESS,
+                instructorService.getInstructorCourseData(userId, courseId)
         ));
     }
 

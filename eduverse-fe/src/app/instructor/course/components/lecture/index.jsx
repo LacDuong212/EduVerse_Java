@@ -50,15 +50,17 @@ const Lecture = ({ show, onClose, onSave, initialLecture = null, courseId }) => 
             <label className="form-label">Lecture Video <span className="text-danger">*</span></label>
 
             {/* 1. Manual Video ID Input */}
-            <div className="mb-3">
-              <input
-                className="form-control"
-                type="text"
-                placeholder="Enter video ID (eg. LECxxxx...)"
-                value={videoState.videoId}
-                disabled={isUploading}
-                onChange={handlers.handleIdChange}
-              />
+            <input
+              className={`form-control ${errors.videoId ? "is-invalid" : ''}`}
+              type="text"
+              placeholder="Enter video ID (eg. LECxxxx...)"
+              value={videoState.videoId}
+              disabled={isUploading}
+              onChange={handlers.handleIdChange}
+            />
+
+            <div className="mt-1">
+              {errors.videoId && <small className="text-danger d-block">{errors.videoId}</small>}
             </div>
 
             {/* OR Divider */}
@@ -89,7 +91,7 @@ const Lecture = ({ show, onClose, onSave, initialLecture = null, courseId }) => 
             </div>
 
             {/* Status Messages */}
-            <div className="mt-2">
+            <div className="mt-1">
               {videoState.fileName && (
                 <small className="text-success"><BsFileEarmarkPlay className="me-1" /> Selected: {videoState.fileName}</small>
               )}

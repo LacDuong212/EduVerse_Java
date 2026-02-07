@@ -31,4 +31,6 @@ public interface CourseRepository extends MongoRepository<Course, String> {
     List<Course> findAllByIsPrivateFalseAndIsDeletedFalseAndStatus(CourseStatus status);
 
     boolean existsByIdAndInstructor_Ref(String id, String instructorId);
+
+    Course findByIdAndInstructor_RefAndIsDeletedFalse(String id, String instructorId);
 }

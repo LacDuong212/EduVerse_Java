@@ -1,9 +1,10 @@
-import { Accordion, AccordionBody, AccordionHeader, AccordionItem, Button, Row, OverlayTrigger, Tooltip, Spinner } from 'react-bootstrap';
-import { FaEdit, FaTimes, FaPlus, FaRobot, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
-import { FaSection } from 'react-icons/fa6';
-import Section from '../section';
-import Lecture from '../lecture';
-import { useStep3 } from './useStep3';
+import { Accordion, AccordionBody, AccordionHeader, AccordionItem, Button, Row, OverlayTrigger, Tooltip, Spinner } from "react-bootstrap";
+import { FaEdit, FaTimes, FaPlus, FaRobot, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+import { FaSection } from "react-icons/fa6";
+import Section from "../section";
+import Lecture from "../lecture";
+import AiData from "../ai";
+import { useStep3 } from "./useStep3";
 
 const Step3 = ({ stepperInstance, draftData, onSave }) => {
   const { data, modals, handlers } = useStep3(stepperInstance, draftData, onSave);
@@ -11,34 +12,44 @@ const Step3 = ({ stepperInstance, draftData, onSave }) => {
 
   // AI Button
   const renderAIButton = (secIdx, lecIdx, lecture) => {
-    if (!courseId || !lecture.id) return null;
-    const status = lecture.aiData?.status || 'None';
+    if (!courseId || !lecture.title) return null;
+    if (draftData?.status !== "Live" && draftData?.status !== "Pending") return null;
+    
+    const status = lecture.aiData?.status || "None";
 
-    if (status === 'Processing') {
-      return (
-        <Button variant="purple-soft" size="sm" className="btn-round me-2 mb-0 d-flex">
-          <Spinner animation="border" size="sm" />
+    let btnVariant = "purple-soft";
+    let tooltip = "AI Assistant";
+    let Icon = FaRobot;
+    let badge = null;
+
+    if (status === "Processing") {
+       return (
+        <Button variant="purple-soft" size="sm" className="btn-round me-2 d-flex" onClick={() => handlers.openAIModal(secIdx, lecIdx)}>
+           <Spinner animation="border" size="sm" />
         </Button>
-      );
+       );
+    } 
+    else if (status === "Completed") {
+       tooltip = "View AI Content";
+       badge = <FaCheckCircle className="position-absolute top-0 start-100 translate-middle text-success bg-white rounded-circle" fontSize={16} />;
+    } 
+    else if (status === "Failed") {
+       tooltip = "Generation Failed";
+       badge = <FaExclamationCircle className="position-absolute top-0 start-100 translate-middle text-danger bg-white rounded-circle" fontSize={16} />;
     }
 
-    const isCompleted = status === 'Completed';
-    const isFailed = status === 'Failed';
-    const tooltipText = isCompleted ? "Quiz Generated" : (isFailed ? "Generation Failed" : "Generate Quiz");
-
     return (
-      <OverlayTrigger placement="top" overlay={<Tooltip>{tooltipText}</Tooltip>}>
+      <OverlayTrigger placement="top" overlay={<Tooltip>{tooltip}</Tooltip>}>
         <div className="position-relative me-2">
           <Button
-            variant="purple-soft"
+            variant={btnVariant}
             size="sm"
-            className="btn-round mb-0"
-            onClick={() => handlers.handleGenerateAI(secIdx, lecIdx)}
+            className="btn-round"
+            onClick={() => handlers.openAIModal(secIdx, lecIdx)}
           >
-            <FaRobot />
+            <Icon />
           </Button>
-          {isCompleted && <FaCheckCircle className="position-absolute top-0 start-100 translate-middle text-success bg-white rounded-circle" fontSize={16} />}
-          {isFailed && <FaExclamationCircle className="position-absolute top-0 start-100 translate-middle text-danger bg-white rounded-circle" fontSize={16} />}
+          {badge}
         </div>
       </OverlayTrigger>
     );
@@ -171,6 +182,15 @@ const Step3 = ({ stepperInstance, draftData, onSave }) => {
         onSave={handlers.handleSaveLecture}
         initialLecture={modals.lecture.data}
         courseId={courseId}
+      />
+
+      {/* AI Data Modal */}
+      <AiData 
+        show={modals.ai.show}
+        onClose={modals.ai.close}
+        lecture={modals.ai.data}
+        onGenerate={handlers.handleGenerateAI}
+        onDelete={handlers.handleDeleteAI}
       />
     </>
   );

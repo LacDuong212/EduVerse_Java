@@ -69,7 +69,6 @@ public enum SuccessCodes {
     //--Payment (29xxx)
     CREATE_PAYMENT_SUCCESS(28004, "Create payment successfully", CREATED),
 
-
     //--Instructor (30xxx)
     GET_INSTRUCTOR_PROFILE_SUCCESS(30000, "Get instructor profile successfully", OK),
     GET_INSTRUCTOR_STATS_SUCCESS(30001, "Get stats successfully", OK),
@@ -81,6 +80,7 @@ public enum SuccessCodes {
     GET_MY_STUDENTS_LIST_SUCCESS(30007, "Get my students list successfully", OK),
     GET_MY_STUDENTS_STATS_SUCCESS(30008, "Get my students stats successfully", OK),
     GET_VIDEO_UPLOAD_URL_SUCCESS(30009, "Get video upload url successfully", OK),
+    GET_INSTRUCTOR_COURSE_DATA_SUCCESS(30010, "Get course data successfully", OK),
 
     //--Video (31xxx)
     GET_VIDEO_SUCCESS(31000, "Get video successfully", OK),

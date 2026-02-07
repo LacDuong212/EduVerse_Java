@@ -19,6 +19,10 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
   const [editingLectureIndex, setEditingLectureIndex] = useState(null);
   const [activeSectionIndex, setActiveSectionIndex] = useState(null);
 
+  // AI modal
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [selectedAILecture, setSelectedAILecture] = useState(null);
+
   // initialize curriculum
   useEffect(() => {
     const data = draftData || {};
@@ -42,7 +46,7 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
   };
 
   const openEditSection = (index, sectionData) => {
-    setEditingSection({ title: sectionData.section }); // Match format expected by AddSection
+    setEditingSection({ title: sectionData.section });
     setEditingSectionIndex(index);
     setShowSectionModal(true);
   };
@@ -51,10 +55,10 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
     setCurriculum(prev => {
       const updated = [...prev];
       if (editingSectionIndex !== null) {
-        // Edit existing
+        // edit existing
         updated[editingSectionIndex] = { ...updated[editingSectionIndex], section: title };
       } else {
-        // Add new
+        // add new
         updated.push({ section: title, lectures: [] });
       }
       return updated;
@@ -97,10 +101,10 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
       const targetLectures = [...targetSection.lectures];
 
       if (editingLectureIndex !== null) {
-        // Edit
+        // edit
         targetLectures[editingLectureIndex] = lectureToSave;
       } else {
-        // Add
+        // add
         targetLectures.push(lectureToSave);
       }
 
@@ -122,23 +126,33 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
   };
 
   // --- AI logic ---
-  const handleGenerateAI = async (sectionIdx, lectureIdx) => {
-    const section = curriculum[sectionIdx];
-    const lecture = section.lectures[lectureIdx];
+  const openAIModal = (sectionIdx, lectureIdx) => {
+    const lecture = curriculum[sectionIdx].lectures[lectureIdx];
+    setSelectedAILecture({ sectionIdx, lectureIdx, data: lecture });
+    setShowAIModal(true);
+  };
+
+  const handleGenerateAI = async () => {
+    if (!selectedAILecture) return;
+    const { sectionIdx, lectureIdx, data: lecture } = selectedAILecture;
 
     if (!draftData?.id || !lecture.id) {
-      toast.warning("Save changes first before generating AI.");
+      toast.warning("Please save changes first.");
       return;
     }
-
     if (!lecture.videoUrl) {
       toast.warning("Video missing.");
       return;
     }
 
     try {
+      // update status to processing
       updateLectureAIStatus(sectionIdx, lectureIdx, "Processing");
-      toast.info("AI job started...");
+      
+      setSelectedAILecture(prev => ({ 
+         ...prev, 
+         data: { ...prev.data, aiData: { status: "Processing" } } 
+      }));
 
       const { data } = await axios.post(
         `${backendUrl}/api/courses/generate-ai`,
@@ -147,13 +161,37 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
       );
 
       if (!data.success) throw new Error(data.message);
+      toast.info("AI Generation started...");
     } catch (error) {
       console.error(error);
-      toast.error("AI Generation failed");
+      toast.error("Generation failed");
       updateLectureAIStatus(sectionIdx, lectureIdx, "Failed");
+
+      // update state to failed
+      setSelectedAILecture(prev => ({ 
+         ...prev, 
+         data: { ...prev.data, aiData: { status: "Failed" } } 
+      }));
     }
   };
 
+  const handleDeleteAI = () => {
+    if (!selectedAILecture || !window.confirm("Delete this AI content?")) return;
+    const { sectionIdx, lectureIdx } = selectedAILecture;
+
+    setCurriculum(prev => {
+       const updated = [...prev];
+       const lec = updated[sectionIdx].lectures[lectureIdx];
+       lec.aiData = null; // clear data
+       return updated;
+    });
+
+    // close modal or update it to empty state
+    setShowAIModal(false);
+    toast.success("AI Content removed.");
+  };
+
+  // helper to update nested state
   const updateLectureAIStatus = (sectionIdx, lectureIdx, status) => {
     setCurriculum(prev => {
       const updated = [...prev];
@@ -189,6 +227,10 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
               })
             };
           }));
+
+          if (showAIModal && selectedAILecture) {
+            // #TODO: Update selectedAILecture data if changed
+          }
         }
       } catch (e) { console.error("Polling error", e); }
     }, 10000);
@@ -214,10 +256,10 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) {
-      toast.error("Check errors.");
-      return;
-    }
+    // if (!validate()) {
+    //   toast.error("Check errors.");
+    //   return;
+    // }
     onSave({ curriculum, lecturesCount: totalLectures });
     toast.success("Step 3 saved!");
     stepperInstance?.next();
@@ -227,12 +269,18 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
     data: { curriculum, errors, stats: { totalSections, totalLectures }, courseId: draftData?.id },
     modals: {
       section: { show: showSectionModal, data: editingSection, close: () => setShowSectionModal(false) },
-      lecture: { show: showLectureModal, data: editingLecture, close: () => setShowLectureModal(false) }
+      lecture: { show: showLectureModal, data: editingLecture, close: () => setShowLectureModal(false) },
+      ai: { 
+        show: showAIModal, 
+        data: (selectedAILecture && curriculum[selectedAILecture.sectionIdx]?.lectures[selectedAILecture.lectureIdx]) || null, 
+        close: () => setShowAIModal(false) 
+      }
     },
     handlers: {
       openAddSection, openEditSection, handleSaveSection, handleRemoveSection,
       openAddLecture, openEditLecture, handleSaveLecture, handleRemoveLecture,
-      handleGenerateAI, handleSubmit, goBack: (e) => { e.preventDefault(); stepperInstance?.previous(); }
+      openAIModal, handleGenerateAI, handleDeleteAI,
+      handleSubmit, goBack: (e) => { e.preventDefault(); stepperInstance?.previous(); }
     }
   };
 };

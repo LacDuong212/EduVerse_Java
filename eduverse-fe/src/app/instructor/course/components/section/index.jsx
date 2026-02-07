@@ -44,6 +44,7 @@ const Section = ({ show, onClose, onSave, initialSection = null }) => {
 
       <ModalBody>
         <form className="row text-start g-3" onSubmit={onFormSubmit}>
+          {/* #TODO: section bulleting */}
           <Col xs={12}>
             <label className="form-label">
               Section Title <span className="text-danger">*</span>
