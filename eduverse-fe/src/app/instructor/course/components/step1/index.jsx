@@ -1,6 +1,6 @@
-import { Button, Col, Row, Form, InputGroup } from "react-bootstrap";
+import { Col, Row, Form, InputGroup } from "react-bootstrap";
 import ReactQuill from "react-quill-new";
-import 'react-quill-new/dist/quill.snow.css';
+import "react-quill-new/dist/quill.snow.css";
 import ChoicesFormInput from "@/components/form/ChoicesFormInput";
 import { currency } from "@/context/constants";
 import { FormField } from "../FormField";
@@ -29,13 +29,18 @@ const MAX_LENGTH = {
   discountPrice: 12,
 };
 
-const Step1 = (props) => {
-  const { formData, errors, categories, saving, handleChange, updateField, handleSubmit } = useStep1(
-    props.draftData, props.onSave, props.stepperInstance
-  );
+const Step1 = ({ stepperInstance }) => {
+  const {
+    formData,
+    errors,
+    categories,
+    categoriesLoading,
+    handleChange,
+    handleCustomChange,
+    handleSubmit
+  } = useStep1(stepperInstance);
 
-  const isDataLoaded = categories?.length > 0;
-  if (!isDataLoaded) {
+  if (categoriesLoading) {
     return (
       <Form
         id="step-1"
@@ -47,7 +52,7 @@ const Step1 = (props) => {
       >
         <h4>Course Details</h4>
         <hr />
-        <div>Loading course data...</div>
+        <div>Loading course form..</div>
       </Form>
     );
   }
@@ -72,7 +77,7 @@ const Step1 = (props) => {
               name="title"
               placeholder="Enter course title"
               maxLength={MAX_LENGTH.title}
-              value={formData.title}
+              value={formData?.title || ''}
               onChange={handleChange}
               isInvalid={!!errors.title}
             />
@@ -87,18 +92,19 @@ const Step1 = (props) => {
               name="subtitle"
               placeholder="Enter short description"
               maxLength={MAX_LENGTH.subtitle}
-              value={formData.subtitle}
+              value={formData?.subtitle || ''}
               onChange={handleChange}
             />
           </FormField>
         </Col>
 
         <Col md={6}>
-          <FormField controlId="categorySelect" label="Category" required={true} error={errors.category}>
+          <FormField controlId="categorySelect" label="Category" required={true} error={errors.categoryId}>
             <ChoicesFormInput
-              value={formData.categoryId}
-              isInvalid={!!errors.category}
-              onChange={(v) => updateField("categoryId", v?.target?.value || v)}
+              className={!!errors.categoryId ? "is-invalid" : ''}
+              value={formData?.categoryId || ''}
+              onChange={(val) => handleCustomChange("categoryId", val)}
+              isInvalid={!!errors.categoryId}
             >
               {categories?.length > 0 ? (
                 <>
@@ -118,11 +124,9 @@ const Step1 = (props) => {
           <FormField controlId="levelSelect" label="Level" required={true} error={errors.level}>
             <ChoicesFormInput
               className={!!errors.level ? "is-invalid" : ''}
-              value={formData.level}
+              value={formData?.level || ''}
+              onChange={(val) => handleCustomChange("level", val)}
               isInvalid={!!errors.level}
-              onChange={(v) =>
-                updateField("level", v?.target?.value || v)
-              }
             >
               <option value=''>Select course level</option>
               <option value="All">All</option>
@@ -137,53 +141,22 @@ const Step1 = (props) => {
           <FormField controlId="languageSelect" label="Language" required={true} error={errors.language}>
             <ChoicesFormInput
               className={!!errors.language ? "is-invalid" : ''}
-              value={formData.language}
+              value={formData?.language || ''}
+              onChange={(val) => handleCustomChange("language", val)}
               isInvalid={!!errors.language}
-              onChange={(v) =>
-                updateField("language", v?.target?.value || v)
-              }
             >
               <option value=''>Select course language</option>
-              <option>English</option>
-              <option>Vietnamese</option>
-              <option>Others</option>
+              <option value="English">English</option>
+              <option value="Vietnamese">Vietnamese</option>
+              <option value="Others">Others</option>
             </ChoicesFormInput>
           </FormField>
         </Col>
 
         <Col md={6}>
-          <FormField label="Duration">
-            <InputGroup>
-              <Form.Control
-                type="number"
-                name="duration"
-                placeholder="Enter duration"
-                min="1"
-                value={formData.duration}
-                onChange={handleChange}
-                style={{ width: '60%' }}
-              />
-              <Form.Select
-                name="durationUnit"
-                value={formData.durationUnit}
-                onChange={handleChange}
-                style={{ width: '40%' }}
-              >
-                <option value="hour">Hours</option>
-                <option value="minute">Minutes</option>
-                <option value="second">Seconds</option>
-                <option value="day">Days</option>
-              </Form.Select>
-            </InputGroup>
-          </FormField>
-        </Col>
-
-        <Col md={6} >{/* Blank */}</Col>
-
-        <Col md={6}>
           <FormField label="Price" required={true} error={errors.price}>
             <InputGroup>
-              <Form.Control name="price" placeholder="Enter price" value={formData.price} onChange={handleChange} isInvalid={!!errors.price} />
+              <Form.Control name="price" placeholder="Enter price" value={formData?.price || ''} onChange={handleChange} isInvalid={!!errors.price} />
               <InputGroup.Text>{currency}</InputGroup.Text>
             </InputGroup>
           </FormField>
@@ -195,16 +168,16 @@ const Step1 = (props) => {
               <Form.Control
                 name="discountPrice"
                 placeholder="Enter discount price"
-                value={formData.discountPrice}
+                value={formData?.discountPrice || ''}
                 onChange={handleChange}
-                disabled={!formData.enableDiscount}
+                disabled={!formData?.enableDiscount || false}
                 isInvalid={!!errors.discountPrice}
               />
               <InputGroup.Text>{currency}</InputGroup.Text>
             </InputGroup>
             <Form.Check
               type="checkbox" id="enableDiscountCheck" label="Enable discount" name="enableDiscount"
-              className="mt-2 small" checked={formData.enableDiscount} onChange={handleChange}
+              className="mt-2 small" checked={formData?.enableDiscount || false} onChange={handleChange}
             />
           </FormField>
         </Col>
@@ -214,21 +187,21 @@ const Step1 = (props) => {
           <div className="pb-5 pb-md-4">
             <ReactQuill
               theme="snow"
-              value={formData.description}
-              onChange={(v) => updateField("description", v)}
+              value={formData?.description || ''}
+              onChange={(val) => handleCustomChange("description", val)}
               {...QUILL_CONFIG}
-              style={{ height: "300px" }}
+              style={{ height: 400 }}
             />
           </div>
         </Col>
 
         <Col xs={12}>
-          <Form.Check type="switch" id="isPrivateSwitch" label="Make course private" name="isPrivate" checked={formData.isPrivate} onChange={handleChange} />
+          <Form.Check type="switch" id="isPrivateSwitch" label="Make course private" name="isPrivate" defaultValue={true} checked={formData?.isPrivate} onChange={handleChange} />
         </Col>
 
         <Col xs={12} className="text-end">
-          <button className="btn btn-primary mb-0" type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Next"}
+          <button className="btn btn-primary mb-0" type="submit">
+            Next
           </button>
         </Col>
       </Row>

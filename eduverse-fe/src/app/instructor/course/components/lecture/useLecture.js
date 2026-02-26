@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-  import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useVideoStream } from "@/hooks/useVideoStream";
 import { useVideoUpload } from "@/hooks/useVideoUpload";
 
@@ -7,7 +7,7 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
 const ALLOWED_EXTENSIONS = ["mp4", "mov", "mkv", "avi"];
 
 // helper: get duration from video file
-const getVideoDuration = (file) => {
+const getVideoDurationFromFile = (file) => {
   return new Promise((resolve, reject) => {
     try {
       const video = document.createElement("video");
@@ -21,9 +21,22 @@ const getVideoDuration = (file) => {
     } catch (e) { reject(e); }
   });
 };
+// helper: get duration from video URL
+const getVideoDurationFromUrl = (url) => {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      resolve(Math.round(video.duration));
+    };
+    video.onerror = () => reject("Failed to load video metadata from S3");
+    video.src = url;
+  });
+};
 
 export const useLecture = (show, initialLecture, onSave, courseId) => {
-  const iocId = courseId || useSelector((state) => state.auth.userData?.id) || null;
+  const userId = useSelector((state) => state.auth.userData?.id);
+  const iocId = courseId || userId || null;
 
   const [form, setForm] = useState({
     title: '',
@@ -74,6 +87,16 @@ export const useLecture = (show, initialLecture, onSave, courseId) => {
       setErrors({});
     }
   }, [show, initialLecture]);
+
+  useEffect(() => {
+    if (s3StreamUrl && !videoState.file) {
+      getVideoDurationFromUrl(s3StreamUrl)
+        .then((seconds) => {
+          updateForm("duration", seconds);
+        })
+        .catch((err) => console.error("S3 Duration Error:", err));
+    }
+  }, [s3StreamUrl, videoState.file]);
 
   // --- Preview Logic ---
   const filePreviewUrl = useMemo(() => {
@@ -128,7 +151,7 @@ export const useLecture = (show, initialLecture, onSave, courseId) => {
     }
 
     try {
-      const seconds = await getVideoDuration(file);
+      const seconds = await getVideoDurationFromFile(file);
       updateForm("duration", seconds);
     } catch (err) {
       console.error("Duration error", err);

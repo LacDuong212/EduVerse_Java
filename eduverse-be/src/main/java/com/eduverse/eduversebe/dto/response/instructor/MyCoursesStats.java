@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MyCoursesStats {
     Integer totalCourses;
+    Integer totalDraft;
     Integer totalLive;
     Integer totalPending;
     Integer totalRejected;

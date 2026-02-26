@@ -1,43 +1,59 @@
 
 export const hasMeaningfulDraftData = (draft) => {
   if (!draft) return false;
+
   const keys = Object.keys(draft);
   if (keys.length === 0) return false;
 
-  // check if there is any key other than "tags"
-  const hasOtherData = keys.some(key => key !== "tags");
-  if (hasOtherData) return true;
-
-  // only has "tags" key, check if tags is empty
-  if (draft.tags && draft.tags.length > 0) return true;
-
-  return false;
+  return true;
 };
 
-export const validateDraft = (draft) => {
-  // Step 1
-  if (!draft.title?.trim()) return "Title is required.";
-  if (!draft.category?.trim()) return "Category is required.";
-  if (!draft.level?.trim()) return "Level is required.";
-  if (!draft.language?.trim()) return "Language is required.";
-  if (draft.price == null || draft.price < 0) return "A valid price is required.";
-  
-  if (draft.enableDiscount) {
-    if (draft.discountPrice == null || draft.discountPrice < 0) return "Discount price is required.";
-    if (draft.discountPrice >= draft.price) return "Discount price must be less than original price.";
+// #TODO: show all error at once
+export const validateFullCourse = (courseData) => {
+  if (!courseData) return "No course data found.";
+
+  // step 1 ---
+  if (!courseData.title?.trim()) return "Title is required.";
+  if (!courseData.categoryId?.trim()) return "Category is required.";
+  if (!courseData.level?.trim()) return "Level is required.";
+  if (!courseData.language?.trim()) return "Language is required.";
+  if (courseData.price == null || courseData.price < 0) return "A valid price is required.";
+
+  if (courseData.enableDiscount) {
+    if (courseData.discountPrice == null || courseData.discountPrice < 0) return "Discount price is required.";
+    if (Number(courseData.discountPrice) >= Number(courseData.price)) return "Discount must be less than price.";
   }
 
-  // Step 2
-  if (!draft.image?.trim()) return "Course image is required.";
+  // step 2 ---
+  if (!courseData.image?.trim()) return "Course image is required.";
 
-  // Step 3
-  if (!draft.curriculum || draft.curriculum.length === 0) {
+  const v = courseData.previewVideo;
+  if (v && v.trim() !== "") {
+    const isValidFormat = v.startsWith("LEC") || /^1766.*\.mp4$/.test(v);
+    if (!isValidFormat) {
+      return "The provided preview video format is invalid.";
+    }
+  }
+
+  // step 3 ---
+  const curriculum = courseData.curriculum || [];
+  if (curriculum.length === 0) {
     return "Curriculum must have at least one section.";
-  } else if (draft.curriculum.some(sec => sec.lectures.length === 0)) {
+  }
+  if (curriculum.some(sec => !sec.lectures || sec.lectures.length === 0)) {
     return "Each section must contain at least one lecture.";
   }
 
-  return null; // Valid
+  // step 4 ---
+  const tags = courseData.tags || [];
+  if (tags.length > 14) {
+    return "Maximum 14 tags allowed.";
+  }
+  if (tags.some(t => t.length > 25)) {
+    return "Each tag must be under 25 characters.";
+  }
+
+  return null; // all good!
 };
 
 export const handleAxiosError = (error, defaultMsg) => {
@@ -47,7 +63,7 @@ export const handleAxiosError = (error, defaultMsg) => {
     const msg = data?.message;
     switch (status) {
       case 413: return "Course too large! Please reduce size.";
-      case 400: return msg || "Invalid data. Check inputs.";
+      case 400: return msg || "Invalid data. Please recheck fields.";
       case 401: return msg || "Session expired. Login again.";
       case 403: return msg || "Permission denied.";
       case 404: return msg || "Course not found.";

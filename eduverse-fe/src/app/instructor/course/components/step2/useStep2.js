@@ -1,13 +1,25 @@
-import { useEffect, useCallback, useMemo, useState, useRef } from "react";
+import _, { set } from "lodash";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { useVideoStream } from "@/hooks/useVideoStream";
 import { useVideoUpload } from "@/hooks/useVideoUpload";
+import { useCourseEditor } from "../../CourseEditorContext";
 
-export const useStep2 = (draftData, onSave, stepperInstance) => {
-  const iocId = draftData.id || useSelector((state) => state.auth.userData?.id) || null;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_VIDEO_SIZE = 1 * 1024 * 1024 * 1024; // 1GB
+
+export const useStep2 = (stepperInstance) => {
+  const {
+    currentCourse: course,
+    updateField: onUpdateField,
+    onSaveDraft
+  } = useCourseEditor();
+  const userId = useSelector((state) => state.auth.userData?.id);
+
+  const iocId = course.id || userId || null;
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
@@ -16,18 +28,43 @@ export const useStep2 = (draftData, onSave, stepperInstance) => {
 
   // states
   const [imageState, setImageState] = useState({
-    tab: draftData.image instanceof File ? "upload" : "url",
-    url: typeof draftData.image === "string" ? draftData.image : '',
-    file: draftData.image instanceof File ? draftData.image : null,
+    tab: (course?.image && typeof course.image === "string") ? "url" : "upload",
+    url: typeof course?.image === "string" ? course.image : '',
+    file: null,
   });
 
   const [videoState, setVideoState] = useState({
-    videoId: typeof draftData.previewVideo === "string" ? draftData.previewVideo : '',
-    file: draftData.previewVideo instanceof File ? draftData.previewVideo : null,
+    videoId: typeof course?.previewVideo === "string" ? course.previewVideo : '',
+    file: null,
   });
 
-  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [previews, setPreviews] = useState({ image: null, video: null });
+
+  // syncing
+  useEffect(() => {
+    if (course?.image && !isImgLoading) {
+      setImageState(prev => {
+        if (prev.url !== course.image && !prev.file) {
+          return {
+            ...prev,
+            url: course.image,
+            tab: "url"
+          };
+        }
+        return prev;
+      });
+    }
+
+    if (course?.previewVideo && !isVidLoading) {
+      setVideoState(prev => {
+        if (prev.videoId !== course.previewVideo && !prev.file) {
+          return { ...prev, videoId: course.previewVideo };
+        }
+        return prev;
+      });
+    }
+  }, [course?.image, course?.previewVideo, isImgLoading, isVidLoading]);
 
   useEffect(() => {
     const imgUrl = imageState.file ? URL.createObjectURL(imageState.file) : imageState.url;
@@ -60,14 +97,13 @@ export const useStep2 = (draftData, onSave, stepperInstance) => {
     const file = fileOrEvent?.target?.files ? fileOrEvent.target.files[0] : fileOrEvent;
     if (!file) return;
 
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      toast.error("Image is too large. Max size is 5MB.");
+    if (file.size > MAX_IMAGE_SIZE) {
+      setFieldErrors(p => ({ ...p, image: "Image is too large (Max 5MB)." }));
       return;
     }
 
     setImageState(p => ({ ...p, file, url: '', tab: "upload" }));
-    setError('');
+    setFieldErrors(p => ({ ...p, image: null }));
   }, []);
 
   const handleRemoveImage = useCallback(() => {
@@ -79,26 +115,24 @@ export const useStep2 = (draftData, onSave, stepperInstance) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
-    const maxVidSize = 1024 * 1024 * 1024; 
-    
-    if (file.size > maxVidSize) {
-      toast.error("Video is too large. Maximum size is 1GB.");
+    if (file.size > MAX_VIDEO_SIZE) {
+      setFieldErrors(p => ({ ...p, videoId: "Video is too large (Max 1GB)." }));
       e.target.value = "";
       return;
     }
 
     const allowedExts = ['mp4', 'mov', 'avi', 'mkv'];
     const fileExt = file.name.split('.').pop().toLowerCase();
-  
+
 
     if (!allowedExts.includes(fileExt)) {
-      toast.error("Invalid file format. Please upload MP4, MOV, AVI, or MKV.");
+      setFieldErrors(p => ({ ...p, videoId: "Unsupported video format." }));
       e.target.value = "";
       return;
     }
 
     setVideoState({ file, videoId: '' });
-    setError('');
+    setFieldErrors(p => ({ ...p, videoId: null }));
   };
 
   const handleRemoveVideo = useCallback(() => {
@@ -107,88 +141,111 @@ export const useStep2 = (draftData, onSave, stepperInstance) => {
   }, []);
 
   // dropzone setup (for image)
-  const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
-    if (rejectedFiles.length > 0) {
-      toast.error("Please upload a valid image file (JPG, PNG, WebP)");
-      return;
-    }
-    if (acceptedFiles.length > 0) {
-      handleImageFileChange(acceptedFiles[0]);
-    }
-  }, [handleImageFileChange]);
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: (accepted) => accepted[0] && handleImageFileChange(accepted[0]),
     accept: { "image/*": [".jpeg", ".jpg", ".png", ".webp"] },
     multiple: false,
     disabled: isImgLoading
   });
 
+  const validate = () => {
+    const errs = {};
+    if (!imageState.url && !imageState.file) errs.image = "Course image is required.";
+
+    const v = videoState.videoId;
+    if (v && v.trim() !== "" && !videoState.file) {
+      const isNewFormat = v.startsWith("LEC");
+      const isLegacyFormat = /^1766.*\.mp4$/.test(v);
+      if (!isNewFormat && !isLegacyFormat) errs.videoId = "Invalid video ID format.";
+    }
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (isBusy) return;
-    setError('');
-
-    const currentImage = imageState.tab === "url" ? imageState.url : imageState.file;
-    if (!currentImage) {
-      toast.error("Course image is required");
-      return setError("Please provide a course image.");
-    }
+    if (!validate()) return;
 
     try {
       let finalImg = imageState.url;
-
       if (imageState.tab === "upload" && imageState.file) {
         finalImg = await uploadImage(imageState.file, iocId);
       }
 
-      const finalizeSave = (finalVidId) => {
-        onSave({
+      const executeFinalSave = async (vidId) => {
+        const finalVidId = vidId || "";
+
+        const updatedData = {
           image: finalImg,
           previewVideo: finalVidId,
           thumbnail: finalImg,
-        });
-        toast.success("Step 2 saved!");
+        };
+
+        onUpdateField(updatedData);
+
+        if (course?.status?.toUpperCase() === "DRAFT") {
+          try {
+            await onSaveDraft(updatedData);
+
+            setImageState(p => ({ ...p, file: null, url: finalImg }));
+            setVideoState(p => ({ ...p, file: null, videoId: finalVidId }));
+
+            toast.success("Course media saved!");
+          } catch (err) {
+            return;
+          }
+        } else {
+          toast.info("Media updated locally.");
+        }
+
         stepperInstance?.next();
       };
 
       if (videoState.file) {
-        await uploadVideo(videoState.file, finalizeSave);
+        await uploadVideo(videoState.file, async (vidId) => {
+          try {
+            await executeFinalSave(vidId);
+          } catch (innerErr) {
+            toast.error("Save failed due to video upload error");
+          }
+        });
       } else {
-        finalizeSave(videoState.videoId);
+        await executeFinalSave(videoState.videoId);
       }
     } catch (err) {
-      console.error("Upload error:", err);
-      toast.error("Upload failed");
-      setError("Failed to upload media");
+      console.error("Save course media error:", err);
+      const msg = err?.response?.data?.message || err?.message || "Failed to save media";
+      toast.error(msg);
     }
   };
 
   return {
-    state: { 
-      imageState, 
-      videoState, 
-      error, 
-      isBusy, 
-      isS3Reference, 
-      vidProgress, 
-      isImgLoading, 
-      isVidLoading, 
-      streamLoading 
+    state: {
+      imageState,
+      videoState,
+      fieldErrors,
+      isBusy,
+      isS3Reference,
+      vidProgress,
+      isImgLoading,
+      isVidLoading,
+      streamLoading
     },
-    previews: { 
-      previewImage: previews.image, 
-      videoObjectUrl: previews.video, 
-      s3StreamUrl 
+    previews: {
+      previewImage: previews.image,
+      videoObjectUrl: previews.video,
+      s3StreamUrl
     },
-    refs: { 
-      imageInputRef, 
-      videoInputRef 
+    refs: {
+      imageInputRef,
+      videoInputRef
     },
-    dropzone: { 
-      getRootProps, 
-      getInputProps, 
-      isDragActive 
+    dropzone: {
+      getRootProps,
+      getInputProps,
+      isDragActive
     },
     methods: {
       setImageState,
@@ -198,7 +255,7 @@ export const useStep2 = (draftData, onSave, stepperInstance) => {
       handleRemoveVideo,
       handleRemoveImage,
       handleSubmit,
-      setError
+      setFieldErrors
     }
   };
 };

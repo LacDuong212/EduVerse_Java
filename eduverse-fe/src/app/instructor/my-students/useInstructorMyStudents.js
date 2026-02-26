@@ -21,15 +21,15 @@ export default function useInstructorMyStudents(initialParams = {}) {
     ...initialParams,
   });
 
-  const [loading, setLoading] = useState(false);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [studentsLoading, setStudentsLoading] = useState(false);
   const [error, setError] = useState(null);
-
 
   const fetchStudents = useCallback(
     async (overrideParams = {}) => {
       const finalParams = { ...params, ...overrideParams };
 
-      setLoading(true);
+      setStudentsLoading(true);
       setError(null);
 
       try {
@@ -50,23 +50,30 @@ export default function useInstructorMyStudents(initialParams = {}) {
         setError(err);
         throw err;
       } finally {
-        setLoading(false);
+        setStudentsLoading(false);
       }
     },
     [backendUrl, params]
   );
 
   const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
+    setError(null);
+
     try {
-      const res = await axios.get(
+      const { data } = await axios.get(
         `${backendUrl}/api/instructor/students/stats`,
         { withCredentials: true }
       );
 
-      setStats(res.data.result);
+      if (data.success)
+        setStats(data.result);
+      else setError(data.message);
     } catch (err) {
       setError(err);
       throw err;
+    } finally {
+      setStatsLoading(false);
     }
   }, [backendUrl]);
 
@@ -82,7 +89,8 @@ export default function useInstructorMyStudents(initialParams = {}) {
     stats,
 
     // ui state
-    loading,
+    statsLoading,
+    studentsLoading,
     error,
 
     // list controls

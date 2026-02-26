@@ -62,7 +62,7 @@ export const useVideoUpload = () => {
         render: "Video uploaded successfully!",
         type: "success",
         isLoading: false,
-        autoClose: 3000
+        autoClose: 2000
       });
 
       if (onSuccess) onSuccess(videoId);
@@ -77,7 +77,7 @@ export const useVideoUpload = () => {
         render: errMsg,
         type: "error",
         isLoading: false,
-        autoClose: 5000
+        autoClose: 3000
       });
     } finally {
       setIsUploading(false);

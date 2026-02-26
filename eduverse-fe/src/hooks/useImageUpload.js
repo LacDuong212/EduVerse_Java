@@ -24,26 +24,15 @@ export const useImageUpload = () => {
         throw new Error(response.message || "Failed to get upload permission");
       }
 
-      const { 
-        signature, 
-        timestamp, 
-        folder, 
-        public_id, 
-        api_key,
-        cloud_name,
-        transformation
-      } = response.result;
+      const { cloud_name, api_key, ...signatureParams } = response.result;
 
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", api_key);
-      formData.append("timestamp", timestamp);
-      formData.append("signature", signature);
-      formData.append("folder", folder);
-      formData.append("public_id", public_id);
-      formData.append("transformation", transformation);
-      formData.append("overwrite", "true");
-      formData.append("invalidate", "true");
+
+      Object.keys(signatureParams).forEach((key) => {
+        formData.append(key, signatureParams[key]);
+      });
 
       const cloudinaryRes = await axios.post(
         `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`,
@@ -52,14 +41,14 @@ export const useImageUpload = () => {
 
       const secureUrl = cloudinaryRes.data.secure_url;
       setImageUrl(secureUrl);
-      
+
       return secureUrl;
 
     } catch (err) {
       console.error("Upload error:", err);
       const errMsg = err.response?.data?.message || err.message || "Upload image failed";
       setError(errMsg);
-      throw new Error(errMsg); 
+      throw new Error(errMsg);
     } finally {
       setIsUploading(false);
     }

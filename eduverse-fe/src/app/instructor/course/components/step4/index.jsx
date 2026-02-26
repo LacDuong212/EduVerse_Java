@@ -1,8 +1,8 @@
 import { Col, Row } from "react-bootstrap";
 import { useStep4 } from "./useStep4";
 
-const Step4 = ({ stepperInstance, draftData, onSave, onSubmit, isSubmitting }) => {
-  const { state, handlers } = useStep4(stepperInstance, draftData, onSave, onSubmit, isSubmitting);
+const Step4 = ({ stepperInstance }) => {
+  const { state, handlers } = useStep4(stepperInstance);
 
   return (
     <form
@@ -19,7 +19,9 @@ const Step4 = ({ stepperInstance, draftData, onSave, onSubmit, isSubmitting }) =
       <Row className="g-4">
         <Col xs={12}>
           <div className="bg-light border rounded p-4">
-            <h5 className="mb-0">Tags</h5>
+            <h5 className="mb-0">
+              Tags <span>({state.tagsInput?.split(',').filter(t => t.trim()).length} / 14)</span>
+            </h5>
             <div className="mt-3">
               <input
                 type="text"

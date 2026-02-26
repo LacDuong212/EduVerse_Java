@@ -1,21 +1,27 @@
 package com.eduverse.eduversebe.service;
 
 import com.eduverse.eduversebe.common.exception.AppException;
+import com.eduverse.eduversebe.common.exception.CourseValidationException;
 import com.eduverse.eduversebe.common.globalEnums.CourseStatus;
 import com.eduverse.eduversebe.common.globalEnums.ErrorCodes;
 import com.eduverse.eduversebe.dto.request.CourseFilterRequest;
 import com.eduverse.eduversebe.dto.response.*;
+import com.eduverse.eduversebe.dto.response.instructor.CourseData;
 import com.eduverse.eduversebe.dto.response.instructor.CoursesListItem;
+import com.eduverse.eduversebe.dto.response.instructor.MyCoursesStats;
 import com.eduverse.eduversebe.mapper.CourseMapper;
 import com.eduverse.eduversebe.model.Category;
 import com.eduverse.eduversebe.model.Course;
+import com.eduverse.eduversebe.model.DraftVideo;
 import com.eduverse.eduversebe.repository.CategoryRepository;
 import com.eduverse.eduversebe.repository.CourseRepository;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,6 +34,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -40,8 +47,14 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final CategoryRepository categoryRepository;
+
     private final CourseMapper courseMapper;
     private final MongoTemplate mongoTemplate;
+    private final S3VideoService s3VideoService;
+
+
+    @Value("${video.draft-duration:24h}")
+    private Duration videoDraftDuration;
 
     public CourseStatsResponse getCourseStats() {
         Criteria criteria = Criteria.where("isPrivate").is(false)
@@ -209,8 +222,10 @@ public class CourseService {
 
     private List<Course> fuzzySearch(List<Course> courses, String keyword) {
         return courses.stream().filter(course -> {
-                    int scoreTitle = FuzzySearch.weightedRatio(keyword, course.getTitle());
-                    int scoreSub = FuzzySearch.weightedRatio(keyword, course.getSubtitle());
+                    int scoreTitle = FuzzySearch.weightedRatio(keyword,
+                            hasText(course.getTitle()) ? course.getTitle() : "");
+                    int scoreSub = FuzzySearch.weightedRatio(keyword,
+                            hasText(course.getSubtitle()) ? course.getSubtitle() : "");
 
                     return scoreTitle > 50 || scoreSub > 50;
                 })
@@ -233,6 +248,9 @@ public class CourseService {
         };
 
         switch (sortParam) {
+            case "updatedRecently":
+                courses.sort(Comparator.comparing(Course::getUpdatedAt).reversed());
+                break;
             case "oldest":
                 courses.sort(Comparator.comparing(Course::getCreatedAt));
                 break;
@@ -349,7 +367,7 @@ public class CourseService {
         } else if (hasText(sortKey)) {
             this.applySorting(results, sortKey);
         } else {
-            query.with(Sort.by(Sort.Direction.DESC, "updatedAt"));
+            this.applySorting(results, "updatedRecently");
         }
 
         int total = results.size();
@@ -431,5 +449,184 @@ public class CourseService {
         Course course = courseRepository.findById(courseId).orElse(null);
         if (course == null) return null;
         else return course.getInstructor().getRef();
+    }
+
+    public String createDraft(String instructorId) {
+        Course course = new Course();
+        course.setTitle("New draft course");
+        course.setInstructor(
+                Course.CourseInstructor.builder()
+                        .ref(instructorId)
+                        .build()
+        );
+        course.setStatus(CourseStatus.Draft);
+        course.setIsPrivate(Boolean.TRUE);
+
+        return courseRepository.save(course).getId();
+    }
+
+    public CourseData getInstructorCourseData(String instructorId, String courseId) {
+        Course course = courseRepository.findByIdAndInstructor_RefAndIsDeletedFalse(courseId, instructorId);
+        if (course == null) throw new AppException(ErrorCodes.COURSE_NOT_FOUND);
+        else return courseMapper.toCourseData(course);
+    }
+
+    public MyCoursesStats getInstructorCoursesStats(String instructorId) {
+        return MyCoursesStats.builder()
+                .totalCourses(this.countInstructorCourses(instructorId))
+                .totalDraft(this.countCoursesWithStatusForInstructor(instructorId, CourseStatus.Draft))
+                .totalLive(this.countCoursesWithStatusForInstructor(instructorId, CourseStatus.Live))
+                .totalPending(this.countCoursesWithStatusForInstructor(instructorId, CourseStatus.Pending))
+                .totalRejected(this.countCoursesWithStatusForInstructor(instructorId, CourseStatus.Rejected))
+                .totalBlocked(this.countCoursesWithStatusForInstructor(instructorId, CourseStatus.Blocked))
+                .build();
+    }
+
+    public CourseData updateInstructorDraft(String id, CourseData courseData) {
+        Course course = courseRepository.findByIdAndStatus(id, CourseStatus.Draft)
+                .orElseThrow(() -> new AppException(ErrorCodes.DRAFT_COURSE_NOT_FOUND));
+
+        String instructorRef = course.getInstructor() != null ? course.getInstructor().getRef() : "edv";
+        processVideoExpiration(instructorRef, course.getCurriculum(), courseData.getCurriculum());
+
+        courseMapper.updateFromCourseData(courseData, course);
+
+        course.setUpdatedAt(Instant.now());
+        Course saved = courseRepository.save(course);
+
+        return courseMapper.toCourseData(saved);
+    }
+
+    public CourseData updateInstructorCourse(String id, CourseData courseData) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCodes.COURSE_NOT_FOUND));
+
+        String instructorRef = course.getInstructor() != null ? course.getInstructor().getRef() : "edv";
+        processVideoExpiration(instructorRef, course.getCurriculum(), courseData.getCurriculum());
+
+        courseMapper.updateFromCourseData(courseData, course);
+
+        Map<String, String> errors = validateCompleteCourse(course);
+
+        if (!errors.isEmpty()) {
+            throw new CourseValidationException(errors);
+        }
+
+        course.setStatus(CourseStatus.Pending);
+        course.setUpdatedAt(Instant.now());
+        Course saved = courseRepository.save(course);
+
+        return courseMapper.toCourseData(saved);
+    }
+
+    // helper: expire unused/orphaned videos
+    private void processVideoExpiration(@DefaultValue("edv") String folderName,
+                                        List<Course.Section> oldCurriculum,
+                                        List<CourseData.Section> newCurriculum) {
+        if (oldCurriculum == null || newCurriculum == null) return;
+
+        Set<String> newVideoUrls = newCurriculum.stream()
+                .filter(section -> section.getLectures() != null)
+                .flatMap(section -> section.getLectures().stream())
+                .map(CourseData.Lecture::getVideoUrl)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toSet());
+
+        Set<String> oldVideoUrls = oldCurriculum.stream()
+                .filter(section -> section.getLectures() != null)
+                .flatMap(section -> section.getLectures().stream())
+                .map(Course.Lecture::getVideoUrl)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toSet());
+
+        Set<String> orphanedUrls = new HashSet<>(oldVideoUrls);
+        orphanedUrls.removeAll(newVideoUrls); // videos to expire
+
+        Set<String> adoptedUrls = new HashSet<>(newVideoUrls);
+        adoptedUrls.removeAll(oldVideoUrls); // newly added or re-added videos
+
+        Instant now = Instant.now();
+
+        if (!orphanedUrls.isEmpty()) {
+            List<String> orphanedKeys = orphanedUrls.stream()
+                    .map(id -> s3VideoService.getKey(folderName, id))
+                    .collect(Collectors.toList());
+
+            Query expireQuery = new Query(Criteria.where("key").in(orphanedKeys));
+            Update expireUpdate = new Update()
+                    .set("updatedAt", now)
+                    .set("expireAt", now.plus(videoDraftDuration));
+
+            mongoTemplate.updateMulti(expireQuery, expireUpdate, DraftVideo.class);
+        }
+
+        if (!adoptedUrls.isEmpty()) {
+            List<String> adoptedKeys = adoptedUrls.stream()
+                    .map(id -> s3VideoService.getKey(folderName, id))
+                    .collect(Collectors.toList());
+
+            Query keepQuery = new Query(Criteria.where("key").in(adoptedKeys));
+            Update keepUpdate = new Update()
+                    .set("updatedAt", now)
+                    .unset("expireAt");
+
+            mongoTemplate.updateMulti(keepQuery, keepUpdate, DraftVideo.class);
+        }
+    }
+
+    private Map<String, String> validateCompleteCourse(Course course) {
+        Map<String, String> errors = new HashMap<>();
+
+        // Step 1: Details
+        if (StringUtils.isBlank(course.getTitle())) errors.put("title", "Title is required.");
+        if (StringUtils.isBlank(course.getCategoryId())) errors.put("categoryId", "Category is required.");
+
+        if (course.getLanguage() == null) {
+            errors.put("language", "Language is required.");
+        }
+
+        if (course.getLevel() == null) {
+            errors.put("level", "Level is required.");
+        }
+
+        if (course.getPrice() == null || course.getPrice() < 0) {
+            errors.put("price", "A valid price is required.");
+        }
+
+        if (Boolean.TRUE.equals(course.getEnableDiscount())) {
+            Double dPrice = course.getDiscountPrice();
+            Double basePrice = course.getPrice();
+
+            if (dPrice == null || dPrice < 0) {
+                errors.put("discountPrice", "Discount price is required.");
+            } else if (basePrice != null && dPrice >= basePrice) {
+                errors.put("discountPrice", "Discount must be less than price.");
+            }
+        }
+
+        // Step 2: Media
+        if (StringUtils.isBlank(course.getImage())) {
+            errors.put("image", "Course image is required.");
+        }
+
+        // Step 3: Curriculum
+        List<Course.Section> curriculum = course.getCurriculum();
+        if (curriculum == null || curriculum.isEmpty()) {
+            errors.put("curriculum", "Curriculum must have at least one section.");
+        } else {
+            boolean hasEmptySections = curriculum.stream()
+                    .anyMatch(sec -> sec.getLectures() == null || sec.getLectures().isEmpty());
+            if (hasEmptySections) {
+                errors.put("curriculum", "Each section must contain at least one lecture.");
+            }
+        }
+
+        // Step 4: Tags
+        List<String> tags = course.getTags();
+        if (tags != null && tags.size() > 14) {
+            errors.put("tags", "Maximum 14 tags allowed.");
+        }
+
+        return errors;
     }
 }

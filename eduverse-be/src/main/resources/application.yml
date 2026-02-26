@@ -90,7 +90,7 @@ socket-server:
   port: 8085
 
 video:
-  draft-duration: 24h
+  draft-duration: 48h
   upload-duration: 2h
   view-duration: 3h
 

@@ -29,6 +29,7 @@ const AppRouter = props => {
       <ScrollToTop />
       {/* {!shouldHideChat && <ChatbotWidget />} */}
 
+      {/* #TODO: optimize */}
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
 

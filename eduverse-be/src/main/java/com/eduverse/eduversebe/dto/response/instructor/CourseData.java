@@ -27,6 +27,7 @@ public class CourseData {
     private Boolean enableDiscount;
     private String thumbnail;
     private String previewVideo;
+    private Integer lecturesCount;
     private List<Section> curriculum;
     private List<String> tags;
     private Boolean isPrivate;
@@ -39,6 +40,7 @@ public class CourseData {
 
     @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
     public static class Lecture {
+        private String id;
         private String title;
         private String videoUrl;
         private Double duration;

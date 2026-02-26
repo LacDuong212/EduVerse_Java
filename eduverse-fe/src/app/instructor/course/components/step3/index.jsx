@@ -1,19 +1,21 @@
-import { Accordion, AccordionBody, AccordionHeader, AccordionItem, Button, Row, OverlayTrigger, Tooltip, Spinner } from "react-bootstrap";
+import { Accordion, AccordionBody, AccordionHeader, AccordionItem, Alert, Button, Row, OverlayTrigger, Tooltip, Spinner } from "react-bootstrap";
 import { FaEdit, FaTimes, FaPlus, FaRobot, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import { FaSection } from "react-icons/fa6";
 import Section from "../section";
 import Lecture from "../lecture";
 import AiData from "../ai";
 import { useStep3 } from "./useStep3";
+import { useCourseEditor } from "../../CourseEditorContext";
 
-const Step3 = ({ stepperInstance, draftData, onSave }) => {
-  const { data, modals, handlers } = useStep3(stepperInstance, draftData, onSave);
+const Step3 = ({ stepperInstance }) => {
+  const { data, modals, handlers } = useStep3(stepperInstance);
   const { curriculum, errors, stats, courseId } = data;
+  const { currentCourse: course } = useCourseEditor();
 
   // AI Button
   const renderAIButton = (secIdx, lecIdx, lecture) => {
-    if (!courseId || !lecture.title) return null;
-    if (draftData?.status !== "Live" && draftData?.status !== "Pending") return null;
+    if (!courseId || !lecture?.id) return null;
+    if (course?.status !== "Live" && course?.status !== "Pending") return null;
     
     const status = lecture.aiData?.status || "None";
 
@@ -24,7 +26,7 @@ const Step3 = ({ stepperInstance, draftData, onSave }) => {
 
     if (status === "Processing") {
        return (
-        <Button variant="purple-soft" size="sm" className="btn-round me-2 d-flex" onClick={() => handlers.openAIModal(secIdx, lecIdx)}>
+        <Button variant="purple-soft" size="sm" className="btn-round mb-0 me-2 d-flex" onClick={() => handlers.openAIModal(secIdx, lecIdx)}>
            <Spinner animation="border" size="sm" />
         </Button>
        );
@@ -44,7 +46,7 @@ const Step3 = ({ stepperInstance, draftData, onSave }) => {
           <Button
             variant={btnVariant}
             size="sm"
-            className="btn-round"
+            className="btn-round mb-0"
             onClick={() => handlers.openAIModal(secIdx, lecIdx)}
           >
             <Icon />
@@ -73,7 +75,7 @@ const Step3 = ({ stepperInstance, draftData, onSave }) => {
             </Button>
           </div>
 
-          {errors.curriculum && <div className="text-danger mb-2 text-center">{errors.curriculum}</div>}
+          {errors.curriculum && <div><Alert variant="danger" className="mt-3 mb-0">{errors.curriculum}</Alert></div>}
 
           {/* Curriculum Accordion */}
           <Accordion defaultActiveKey="0" className="accordion-icon accordion-bg-light">

@@ -42,6 +42,13 @@ public enum ErrorCodes {
     COURSE_NOT_FOUND(14000, "Course not found for this user.", NOT_FOUND),
     UPDATE_COURSE_PRIVACY_FAILED(14001, "Update course privacy failed", BAD_REQUEST),
     COURSE_ACCESS_DENIED(14002, "You do not have access to this course", FORBIDDEN),
+    DRAFT_COURSE_NOT_FOUND(14003, "Draft not found for this course", NOT_FOUND),
+    COURSE_VALIDATION_FAILED(14004, "Validate course failed with errors", BAD_REQUEST),
+    INVALID_COURSE_LANGUAGE(14005, "Invalid course language", BAD_REQUEST),
+    INVALID_COURSE_LEVEL(14006, "Invalid course level", BAD_REQUEST),
+    INVALID_COURSE_AI_STATUS(14007, "Invalid course AI status", BAD_REQUEST),
+    INVALID_COURSE_DURATION_UNITS(14008, "Invalid course duration unit count", BAD_REQUEST),
+    INVALID_COURSE_STATUS(14009, "Invalid course status", BAD_REQUEST),
 
     //--Cart (15xxx)
 
@@ -64,6 +71,8 @@ public enum ErrorCodes {
     CART_EMPTY(19001, "Cart is empty or invalid", BAD_REQUEST),
     INVALID_PAYMENT_METHOD(19002, "Invalid payment method", BAD_REQUEST),
     ORDER_NOT_CANCELLABLE(19003, "Processed orders cannot be canceled", BAD_REQUEST),
+    INVALID_ORDER_STATUS(19004, "Invalid order status", BAD_REQUEST),
+    PAYMENT_METHOD_NOT_FOUND(19005, "Payment method not found", NOT_FOUND),
 
     //--Student (20xxx)
     ADD_COURSES_FAILED(20001, "There are no courses to add", BAD_REQUEST),

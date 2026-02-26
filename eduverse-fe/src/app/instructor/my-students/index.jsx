@@ -10,14 +10,15 @@ const InstructorMyStudents = () => {
     students,
     pagination,
     stats,
-    loading,
+    statsLoading,
+    studentsLoading,
 
     setPage,
     setSearch,
     setSort,
   } = useInstructorMyStudents();
 
-  if (loading) {
+  if (statsLoading) {
     return (
       <Preloader />
     );
@@ -34,7 +35,7 @@ const InstructorMyStudents = () => {
           page={pagination.page}
           limit={pagination.limit || 5}
           totalPages={pagination.totalPages}
-          loading={loading}
+          loading={studentsLoading}
           onPageChange={setPage}
           onSearch={setSearch}
           onSortChange={setSort}

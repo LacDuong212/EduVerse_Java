@@ -5,7 +5,8 @@ import com.eduverse.eduversebe.common.globalEnums.SuccessCodes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -19,7 +20,8 @@ public class ApiResponse<T> {
     private int code;
     private String message;
     private T result;
-    private LocalDateTime timestamp;
+    private Map<String, String> errors;
+    private Instant timestamp;
 
     public static <T> ApiResponse<T> success(SuccessCodes successCode, T result) {
         return ApiResponse.<T>builder()
@@ -27,7 +29,7 @@ public class ApiResponse<T> {
                 .code(successCode.getResponseCode())
                 .message(successCode.getResponseMsg())
                 .result(result)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -36,7 +38,7 @@ public class ApiResponse<T> {
                 .success(true)
                 .code(successCode.getResponseCode())
                 .message(successCode.getResponseMsg())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -45,7 +47,7 @@ public class ApiResponse<T> {
                 .success(false)
                 .code(code)
                 .message(message)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -54,7 +56,17 @@ public class ApiResponse<T> {
                 .success(false)
                 .code(errorCode.getResponseCode())
                 .message(errorCode.getResponseMsg())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
+                .build();
+    }
+
+    public static <T> ApiResponse<T> error(ErrorCodes errorCode, Map<String, String> errors) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .code(errorCode.getResponseCode())
+                .message(errorCode.getResponseMsg())
+                .errors(errors)
+                .timestamp(Instant.now())
                 .build();
     }
 }

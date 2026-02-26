@@ -19,6 +19,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+
 @RestController
 @RequestMapping("/api/auth/")
 @RequiredArgsConstructor
@@ -103,7 +105,7 @@ public class AuthController {
                     .success(false)
                     .message("Guest user")
                     .result(null)
-                    .timestamp(java.time.LocalDateTime.now())
+                    .timestamp(Instant.now())
                     .build());
         }
 
@@ -122,7 +124,7 @@ public class AuthController {
                 .success(true)
                 .message("User is authenticated")
                 .result(userResponse)
-                .timestamp(java.time.LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build());
     }
 

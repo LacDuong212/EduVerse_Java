@@ -26,16 +26,16 @@ const InstructorDashboard = () => {
     );
   }
 
-  if (error) {
-    toast.error(error);
+  // if (error) {
+  //   toast.error(error);
 
-    return (
-      <Container className="d-flex flex-column align-items-center justify-content-center mt-5">
-        <h3>Error loading page</h3>
-        <button onClick={refetch} className="btn btn-primary">Retry</button>
-      </Container>
-    );
-  }
+  //   return (
+  //     <Container className="d-flex flex-column align-items-center justify-content-center mt-5">
+  //       <h3>Error loading page</h3>
+  //       <button onClick={refetch} className="btn btn-primary">Retry</button>
+  //     </Container>
+  //   );
+  // }
 
   return (
     <Container className="pb-5">

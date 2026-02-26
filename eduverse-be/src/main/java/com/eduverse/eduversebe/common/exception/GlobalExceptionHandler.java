@@ -85,4 +85,18 @@ public class GlobalExceptionHandler {
                         errorCode.getResponseMsg()
                 ));
     }
+
+    @ExceptionHandler(value = CourseValidationException.class)
+    ResponseEntity<ApiResponse<?>> handlingAppException(CourseValidationException exception) {
+        ErrorCodes errorCode = exception.getErrorCode();
+
+        log.warn("[COURSE VALIDATION EXCEPTION] {}", errorCode.getResponseMsg());
+
+        return ResponseEntity
+                .status(errorCode.getResponseStatus())
+                .body(ApiResponse.error(
+                        errorCode,
+                        exception.getErrors()
+                ));
+    }
 }

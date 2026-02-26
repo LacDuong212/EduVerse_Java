@@ -11,7 +11,8 @@ const ResetPassword = lazy(() => import('@/app/auth/reset-password/page'));
 // import InstructorCourseDetail from "../app/instructor/course-detail";
 import InstructorDashboard from "../app/instructor/dashboard";
 // import InstructorEarnings from '../app/instructor/earnings';
-// import InstructorManageCoursePage from "../app/instructor/manage-course";
+import CreateCoursePage from "../app/instructor/course/create-course";
+import EditCourseForm from "../app/instructor/course/edit-course";
 import InstructorMyCourses from "../app/instructor/my-courses";
 import InstructorMyStudents from "../app/instructor/my-students";
 // import VideoTest from '../app/instructor/tmp/video-test';
@@ -136,12 +137,12 @@ export const instructorRoutes = [{
   path: '/instructor/courses/create',
   name: 'Create Course',
   isNested: false,
-  // element: <InstructorManageCoursePage isEdit={false} />
+  element: <CreateCoursePage />
 }, {
   path: '/instructor/courses/:id/edit',
   name: 'Edit Course',
   isNested: false,
-  // element: <InstructorManageCoursePage isEdit={true} />
+  element: <EditCourseForm />
 }, {
   path: '/instructor/courses/:id',
   name: 'Course Details',

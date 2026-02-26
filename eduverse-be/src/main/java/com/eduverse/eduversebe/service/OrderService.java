@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -160,5 +161,10 @@ public class OrderService {
         }
 
         throw new AppException(ErrorCodes.UNAUTHORIZED_ACCESS);
+    }
+
+    public long countCompletedOrdersByCourseIds(List<String> courseIds) {
+        if (courseIds == null) courseIds = List.of();
+        return Optional.ofNullable(orderRepository.countCompletedOrdersByCourseIds(courseIds)).orElse(0L);
     }
 }

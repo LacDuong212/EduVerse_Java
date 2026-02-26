@@ -1,12 +1,10 @@
 package com.eduverse.eduversebe.model;
 
-import com.eduverse.eduversebe.common.globalEnums.CourseAiStatus;
-import com.eduverse.eduversebe.common.globalEnums.CourseDurationUnit;
-import com.eduverse.eduversebe.common.globalEnums.CourseLevel;
-import com.eduverse.eduversebe.common.globalEnums.CourseStatus;
+import com.eduverse.eduversebe.common.globalEnums.*;
 import com.eduverse.eduversebe.common.model.BaseEntity;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -34,9 +32,11 @@ public class Course extends BaseEntity {
     private String categoryId;
 
     private String subCategory;
-    private String language;
 
     private CourseInstructor instructor;
+
+    @Builder.Default
+    private CourseLanguage language = CourseLanguage.English;
 
     @Builder.Default
     private CourseLevel level = CourseLevel.All;
@@ -67,7 +67,7 @@ public class Course extends BaseEntity {
     private Double discountPrice;
 
     @Builder.Default
-    private boolean enableDiscount = false;
+    private Boolean enableDiscount = false;
 
     @Builder.Default
     private CourseStatus status = CourseStatus.Pending;
@@ -123,6 +123,9 @@ public class Course extends BaseEntity {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Lecture {
+        @Id
+        private String id;
+
         private String title;
         private String videoUrl;
         private Double duration;

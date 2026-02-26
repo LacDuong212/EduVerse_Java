@@ -10,7 +10,7 @@ const AiData = ({ show, onClose, lecture, onGenerate, onDelete }) => {
   if (!lecture) return null;
 
   return (
-    <Modal show={show} onHide={onClose} size="lg" scrollable>
+    <Modal show={show} onHide={onClose} size="lg" centered scrollable>
       <ModalHeader className="bg-purple">
         <div className="d-flex flex-column">
           <h5 className="modal-title text-white">
@@ -26,15 +26,15 @@ const AiData = ({ show, onClose, lecture, onGenerate, onDelete }) => {
         {state.isProcessing && (
           <div className="text-center py-5">
             <div className="spinner-border text-purple mb-3" role="status"></div>
-            <h5>Generating content...</h5>
-            <p className="mb-0">This may take a minute. You can close this window; it will continue in the background.</p>
+            <h5 className="mb-0">Generating content...</h5>
+            <p className="mb-0">This may take a minute. You can close this window, it will continue in the background.</p>
           </div>
         )}
 
         {/* State 2: Failed */}
         {state.isFailed && (
-          <Alert variant="danger">
-            <h6 className="alert-heading">Generation Failed</h6>
+          <Alert variant="danger" className="m-2">
+            <h6 className="alert-heading mb-0">Generation Failed</h6>
             <p className="mb-0">Something went wrong while processing the video. Please try again.</p>
           </Alert>
         )}
@@ -42,9 +42,9 @@ const AiData = ({ show, onClose, lecture, onGenerate, onDelete }) => {
         {/* State 3: Empty */}
         {!state.isProcessing && !state.hasData && !state.isFailed && (
           <div className="text-center py-5">
-            <FaRobot size={40} className="text-muted mb-3 opacity-50" />
-            <h5>No AI Content Yet</h5>
-            <p className="mb-0">Generate a summary, key concepts, and quizzes automatically from your video.</p>
+            <FaRobot size={40} className="text-muted mb-2 opacity-50" />
+            <h5 className="mb-0">No AI Content Yet</h5>
+            <p className="mb-2">Generate a summary, key concepts, and quizzes automatically from your video.</p>
             <Button variant="purple" onClick={onGenerate}>
               <FaRobot className="me-2" /> Generate Now
             </Button>
@@ -122,7 +122,7 @@ const AiData = ({ show, onClose, lecture, onGenerate, onDelete }) => {
                         <span className="fw-bold me-2">Q{idx + 1}.</span> {q.question}
                       </Accordion.Header>
                       <Accordion.Body className="p-2">
-                        <div className="mb-3">
+                        <div className="mb-2">
                           {q.options.map((opt, oIdx) => (
                             <div key={oIdx} className={`p-2 border rounded mb-2 ${opt === q.correctAnswer ? "bg-success-soft border-success" : "bg-body"}`}>
                               {opt === q.correctAnswer && <FaCheckCircle className="text-success mb-1 me-2" />}
@@ -130,7 +130,7 @@ const AiData = ({ show, onClose, lecture, onGenerate, onDelete }) => {
                             </div>
                           ))}
                         </div>
-                        <div className="bg-light p-2 rounded border border-purple">
+                        <div className="p-2 rounded border border-purple bg-purple bg-opacity-10">
                           <strong>Explanation: </strong> {q.explanation}
                         </div>
                       </Accordion.Body>

@@ -9,10 +9,8 @@ import com.eduverse.eduversebe.repository.CourseRepository;
 import com.eduverse.eduversebe.repository.DraftVideoRepository;
 import com.eduverse.eduversebe.repository.InstructorRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
 
 @Service
@@ -24,11 +22,8 @@ public class VideoService {
     private final InstructorRepository instructorRepository;
     private final S3VideoService s3VideoService;
 
-    @Value("${video.draft-duration:24h}")
-    private Duration videoDraftDuration;
-
     public boolean isVideoAccessible(String userId, String courseId, String videoId) {
-        // #TODO: check video accessibility logic
+        // #TODO: check video accessibility logic, check if user.myCourses have courseId and if the lecture is paid
         return true;
     }
 
@@ -40,7 +35,6 @@ public class VideoService {
                         .key(s3VideoService.getKey(userId, res.getVideoId()))
                         .contentType(contentType)
                         .createdAt(Instant.now())
-                        .expireAt(Instant.now().plus(videoDraftDuration))
                         .build()
         );
 

@@ -1,10 +1,20 @@
-import { useState, useEffect } from "react";
 import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+import { useCourseEditor } from "../../CourseEditorContext";
+
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-export const useStep3 = (stepperInstance, draftData, onSave) => {
+export const useStep3 = (stepperInstance) => {
+  const {
+    setCourse,
+    currentCourse: course,
+    courseDraft: draft,
+    updateField: onUpdateField,
+    onSaveDraft
+  } = useCourseEditor();
+
   const [curriculum, setCurriculum] = useState([]);
   const [errors, setErrors] = useState({});
 
@@ -21,22 +31,26 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
 
   // AI modal
   const [showAIModal, setShowAIModal] = useState(false);
-  const [selectedAILecture, setSelectedAILecture] = useState(null);
+  const [selectedAILecture, setSelectedAILecture] = useState(null); // { sectionIdx, lectureIdx }
 
   // initialize curriculum
   useEffect(() => {
-    const data = draftData || {};
-    setCurriculum(
-      (data.curriculum || []).map(section => ({
-        ...section,
-        lectures: section.lectures || [],
-      }))
-    );
-  }, [JSON.stringify(draftData?.curriculum)]);
+    if (course?.curriculum) {
+      setCurriculum(course.curriculum.map(s => ({
+        ...s,
+        lectures: s.lectures || []
+      })));
+    }
+  }, [course?.id]);
+
+  // helper: calculate total lectures
+  const calculateTotalLectures = (curr) => {
+    return curr.reduce((acc, sec) => acc + (sec.lectures?.length || 0), 0);
+  };
 
   // computed stats
   const totalSections = curriculum.length;
-  const totalLectures = curriculum.reduce((acc, sec) => acc + (sec.lectures?.length || 0), 0);
+  const totalLectures = calculateTotalLectures(curriculum);
 
   // --- SECTION handlers ---
   const openAddSection = () => {
@@ -52,24 +66,28 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
   };
 
   const handleSaveSection = (title) => {
-    setCurriculum(prev => {
-      const updated = [...prev];
-      if (editingSectionIndex !== null) {
-        // edit existing
-        updated[editingSectionIndex] = { ...updated[editingSectionIndex], section: title };
-      } else {
-        // add new
-        updated.push({ section: title, lectures: [] });
-      }
-      return updated;
-    });
-    if (errors.curriculum) setErrors(p => ({ ...p, curriculum: null }));
+    const updated = [...curriculum];
+
+    if (editingSectionIndex !== null) {
+      updated[editingSectionIndex] = { ...updated[editingSectionIndex], section: title };
+    } else {
+      updated.push({ section: title, lectures: [] });
+    }
+
+    setCurriculum(updated);
+    onUpdateField("curriculum", updated);
     setShowSectionModal(false);
   };
 
   const handleRemoveSection = (index) => {
     if (!window.confirm("Are you sure? All lectures in this section will be deleted.")) return;
-    setCurriculum(prev => prev.filter((_, i) => i !== index));
+
+    const updated = curriculum.filter((_, i) => i !== index);
+    const newCount = calculateTotalLectures(updated);
+
+    setCurriculum(updated);
+    onUpdateField("curriculum", updated);
+    onUpdateField("lecturesCount", newCount);
   };
 
   // --- LECTURE handlers ---
@@ -88,42 +106,46 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
   };
 
   const handleSaveLecture = (lectureData) => {
-    let lectureToSave = { ...lectureData };
-    if (lectureData.videoFile) {
-      const tempUrl = URL.createObjectURL(lectureData.videoFile);
-      lectureToSave.videoUrl = tempUrl;
-      lectureToSave.videoFile = null;
+    const updated = [...curriculum];
+    const targetSection = { ...updated[activeSectionIndex] };
+    const targetLectures = [...targetSection.lectures];
+
+    if (editingLectureIndex !== null) {
+      targetLectures[editingLectureIndex] = lectureData;
+    } else {
+      targetLectures.push(lectureData);
     }
 
-    setCurriculum(prev => {
-      const updated = [...prev];
-      const targetSection = { ...updated[activeSectionIndex] };
-      const targetLectures = [...targetSection.lectures];
+    targetSection.lectures = targetLectures;
+    updated[activeSectionIndex] = targetSection;
 
-      if (editingLectureIndex !== null) {
-        // edit
-        targetLectures[editingLectureIndex] = lectureToSave;
-      } else {
-        // add
-        targetLectures.push(lectureToSave);
-      }
+    const newCount = calculateTotalLectures(updated);
 
-      targetSection.lectures = targetLectures;
-      updated[activeSectionIndex] = targetSection;
-      return updated;
-    });
-
+    setCurriculum(updated);
+    onUpdateField("curriculum", updated);
+    onUpdateField("lecturesCount", newCount);
     setShowLectureModal(false);
   };
 
   const handleRemoveLecture = (sectionIndex, lectureIndex) => {
     if (!window.confirm("Remove this lecture?")) return;
-    setCurriculum(prev => {
-      const updated = [...prev];
-      updated[sectionIndex].lectures.splice(lectureIndex, 1);
-      return updated;
-    });
+
+    const updated = [...curriculum];
+    const targetSection = { ...updated[sectionIndex] };
+    targetSection.lectures = targetSection.lectures.filter((_, i) => i !== lectureIndex);
+    updated[sectionIndex] = targetSection;
+
+    const newCount = calculateTotalLectures(updated);
+
+    setCurriculum(updated);
+    onUpdateField("curriculum", updated);
+    onUpdateField("lecturesCount", newCount);
   };
+
+  const currentSelectedLecture = useMemo(() => {
+    if (!selectedAILecture) return null;
+    return curriculum[selectedAILecture.sectionIdx]?.lectures[selectedAILecture.lectureIdx];
+  }, [curriculum, selectedAILecture]);
 
   // --- AI logic ---
   const openAIModal = (sectionIdx, lectureIdx) => {
@@ -136,7 +158,7 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
     if (!selectedAILecture) return;
     const { sectionIdx, lectureIdx, data: lecture } = selectedAILecture;
 
-    if (!draftData?.id || !lecture.id) {
+    if (!course?.id || !lecture.id) {
       toast.warning("Please save changes first.");
       return;
     }
@@ -148,15 +170,10 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
     try {
       // update status to processing
       updateLectureAIStatus(sectionIdx, lectureIdx, "Processing");
-      
-      setSelectedAILecture(prev => ({ 
-         ...prev, 
-         data: { ...prev.data, aiData: { status: "Processing" } } 
-      }));
 
       const { data } = await axios.post(
         `${backendUrl}/api/courses/generate-ai`,
-        { courseId: draftData.id, lectureId: lecture.id, videoKey: lecture.videoUrl },
+        { courseId: course.id, lectureId: lecture.id, videoKey: lecture.videoUrl },
         { withCredentials: true }
       );
 
@@ -166,12 +183,6 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
       console.error(error);
       toast.error("Generation failed");
       updateLectureAIStatus(sectionIdx, lectureIdx, "Failed");
-
-      // update state to failed
-      setSelectedAILecture(prev => ({ 
-         ...prev, 
-         data: { ...prev.data, aiData: { status: "Failed" } } 
-      }));
     }
   };
 
@@ -179,25 +190,43 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
     if (!selectedAILecture || !window.confirm("Delete this AI content?")) return;
     const { sectionIdx, lectureIdx } = selectedAILecture;
 
-    setCurriculum(prev => {
-       const updated = [...prev];
-       const lec = updated[sectionIdx].lectures[lectureIdx];
-       lec.aiData = null; // clear data
-       return updated;
-    });
+    const updated = [...curriculum];
+    const targetSection = { ...updated[sectionIdx] };
+    const targetLectures = [...targetSection.lectures];
 
-    // close modal or update it to empty state
+    targetLectures[lectureIdx] = {
+      ...targetLectures[lectureIdx],
+      aiData: null
+    };
+
+    targetSection.lectures = targetLectures;
+    updated[sectionIdx] = targetSection;
+
+    setCurriculum(updated);
+
+    onUpdateField("curriculum", updated);
+
     setShowAIModal(false);
     toast.success("AI Content removed.");
   };
 
-  // helper to update nested state
+  // helper: update nested state
   const updateLectureAIStatus = (sectionIdx, lectureIdx, status) => {
     setCurriculum(prev => {
       const updated = [...prev];
-      const lec = updated[sectionIdx].lectures[lectureIdx];
-      if (!lec.aiData) lec.aiData = {};
-      lec.aiData.status = status;
+      const targetSection = { ...updated[sectionIdx] };
+      const targetLectures = [...targetSection.lectures];
+
+      targetLectures[lectureIdx] = {
+        ...targetLectures[lectureIdx],
+        aiData: { ...targetLectures[lectureIdx].aiData, status }
+      };
+
+      targetSection.lectures = targetLectures;
+      updated[sectionIdx] = targetSection;
+
+      onUpdateField("curriculum", updated);
+
       return updated;
     });
   };
@@ -205,75 +234,85 @@ export const useStep3 = (stepperInstance, draftData, onSave) => {
   // AI Polling
   useEffect(() => {
     const hasProcessing = curriculum.some(s => s.lectures?.some(l => l.aiData?.status === "Processing"));
-    if (!hasProcessing || !draftData?.id) return;
+    if (!hasProcessing || !course?.id) return;
 
     const interval = setInterval(async () => {
       try {
-        const { data } = await axios.get(`${backendUrl}/api/instructor/courses/${draftData.id}`, { withCredentials: true });
-        if (data.success && data.course) {
+        const { data } = await axios.get(
+          `${backendUrl}/api/instructor/courses/${course.id}`,
+          { withCredentials: true }
+        );
 
-          setCurriculum(prev => prev.map((sec) => {
-            const serverSection = data.course.curriculum.find(s => s.section === sec.section);
-            if (!serverSection) return sec;
-
-            return {
-              ...sec,
-              lectures: sec.lectures.map(lec => {
-                const serverLec = serverSection.lectures?.find(l => l.id === lec.id);
-                if (serverLec && serverLec.aiData?.status !== lec.aiData?.status) {
-                  return { ...lec, aiData: serverLec.aiData };
-                }
-                return lec;
-              })
-            };
-          }));
-
-          if (showAIModal && selectedAILecture) {
-            // #TODO: Update selectedAILecture data if changed
+        if (data.success && data.result) {
+          if (Object.keys(draft).length === 0) {
+            setCourse(data.result);
+          } else {
+            setCourse(prev => ({ ...data.result, ...prev }));
           }
+        } else {
+          throw new Error(data.message);
         }
       } catch (e) { console.error("Polling error", e); }
-    }, 10000);
+    }, 1 * 60 * 1000); // every 1m
 
     return () => clearInterval(interval);
-  }, [curriculum, draftData?.id]);
-
-  // auto-save
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      onSave({ curriculum, lecturesCount: totalLectures });
-    }, 2000);
-    return () => clearTimeout(handler);
-  }, [curriculum, totalLectures, onSave]);
+  }, [curriculum, course?.id, draft, setCourse]);
 
   const validate = () => {
     const errs = {};
     if (curriculum.length === 0) errs.curriculum = "Add at least one section.";
-    else if (curriculum.some(s => s.lectures.length === 0)) errs.curriculum = "Sections must have lectures.";
+    else if (curriculum.some(s => s.lectures.length === 0)) errs.curriculum = "Each section must have at least one lecture.";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // if (!validate()) {
-    //   toast.error("Check errors.");
-    //   return;
-    // }
-    onSave({ curriculum, lecturesCount: totalLectures });
-    toast.success("Step 3 saved!");
+
+    if (!validate()) {
+      toast.error("Please check form for errors.");
+      return;
+    }
+
+    if (course?.status?.toUpperCase() === "DRAFT") {
+      try {
+        await onSaveDraft({
+          curriculum,
+          lecturesCount: totalLectures
+        });
+
+        toast.success("Curriculum saved!");
+      } catch (err) {
+        console.error("Save curriculum:", err);
+        toast.error(err?.message || "Failed to save curriculum");
+        return;
+      }
+    } else {
+      onUpdateField("curriculum", curriculum);
+      onUpdateField("lecturesCount", totalLectures);
+      toast.info("Curriculum updated locally.");
+    }
+
     stepperInstance?.next();
   };
 
   return {
-    data: { curriculum, errors, stats: { totalSections, totalLectures }, courseId: draftData?.id },
+    data: { curriculum, errors, stats: { totalSections, totalLectures }, courseId: course?.id },
     modals: {
-      section: { show: showSectionModal, data: editingSection, close: () => setShowSectionModal(false) },
-      lecture: { show: showLectureModal, data: editingLecture, close: () => setShowLectureModal(false) },
-      ai: { 
-        show: showAIModal, 
-        data: (selectedAILecture && curriculum[selectedAILecture.sectionIdx]?.lectures[selectedAILecture.lectureIdx]) || null, 
-        close: () => setShowAIModal(false) 
+      section: {
+        show: showSectionModal,
+        data: editingSection,
+        close: () => setShowSectionModal(false)
+      },
+      lecture: {
+        show: showLectureModal,
+        data: editingLecture,
+        close: () => setShowLectureModal(false)
+      },
+      ai: {
+        show: showAIModal,
+        data: currentSelectedLecture,
+        close: () => setShowAIModal(false)
       }
     },
     handlers: {

@@ -10,7 +10,8 @@ const InstructorMyCourses = () => {
     courses,
     pagination,
     stats,
-    loading,
+    statsLoading,
+    coursesLoading,
 
     setPage,
     setSearch,
@@ -18,7 +19,7 @@ const InstructorMyCourses = () => {
     updateCoursePrivacy,
   } = useInstructorMyCourses();
 
-  if (loading) {
+  if (statsLoading) {
     return (
       <Preloader />
     );
@@ -35,7 +36,7 @@ const InstructorMyCourses = () => {
           page={pagination.page}
           limit={pagination.limit || 5}
           totalPages={pagination.totalPages}
-          loading={loading}
+          loading={coursesLoading}
           onPageChange={setPage}
           onTogglePrivacy={updateCoursePrivacy}
           onSearch={setSearch}

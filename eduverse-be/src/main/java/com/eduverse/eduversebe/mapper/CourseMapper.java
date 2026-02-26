@@ -4,10 +4,7 @@ import com.eduverse.eduversebe.dto.response.CourseResponse;
 import com.eduverse.eduversebe.dto.response.instructor.CourseData;
 import com.eduverse.eduversebe.dto.response.instructor.CoursesListItem;
 import com.eduverse.eduversebe.model.Course;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface CourseMapper {
@@ -15,17 +12,12 @@ public interface CourseMapper {
     @Mapping(source = "instructor.ref", target = "instructorId")
     @Mapping(source = "instructor.name", target = "instructorName")
     @Mapping(source = "instructor.avatar", target = "instructorAvatar")
-
     @Mapping(source = "rating.average", target = "averageRating")
     @Mapping(source = "rating.count", target = "ratingCount")
-
     @Mapping(source = "categoryId", target = "category.id")
     @Mapping(target = "category.name", ignore = true)
-
     @Mapping(target = "isFree", ignore = true)
-
     @Mapping(target = "thumbnail", expression = "java(course.getThumbnail() != null ? course.getThumbnail() : course.getImage())")
-
     CourseResponse toCourseResponse(Course course);
 
     @AfterMapping
@@ -43,10 +35,14 @@ public interface CourseMapper {
     CoursesListItem toCoursesListItem(Course course);
 
     @Mapping(target = "status", source = "status")
+    @Mapping(target = "language", source = "language")
     @Mapping(target = "level", source = "level")
     @Mapping(target = "durationUnit", source = "durationUnit")
     CourseData toCourseData(Course course);
 
     @Mapping(target = "status", source = "status")
     CourseData.AiData mapAiData(Course.AiData aiData);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromCourseData(CourseData dto, @MappingTarget Course entity);
 }

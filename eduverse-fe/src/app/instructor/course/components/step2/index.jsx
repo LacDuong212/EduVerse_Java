@@ -3,8 +3,8 @@ import { FaTrash, FaVideo } from "react-icons/fa";
 import galleryImg from "@/assets/images/element/gallery.svg";
 import { useStep2 } from "./useStep2";
 
-const Step2 = ({ stepperInstance, draftData, onSave }) => {
-  const { state, previews, refs, dropzone, methods } = useStep2(draftData, onSave, stepperInstance);
+const Step2 = ({ stepperInstance }) => {
+  const { state, previews, refs, dropzone, methods } = useStep2(stepperInstance);
 
   return (
     <form
@@ -36,16 +36,19 @@ const Step2 = ({ stepperInstance, draftData, onSave }) => {
               <Tab.Pane eventKey="url">
                 <input
                   type="url"
-                  className="form-control"
+                  className={`form-control ${state.fieldErrors?.image ? "is-invalid" : ''}`}
                   placeholder="eg. https://..."
                   value={state.imageState.url}
                   onChange={(e) => methods.setImageState(p => ({ ...p, url: e.target.value, file: null }))}
                 />
+                {state.fieldErrors?.image && <div className="invalid-feedback">{state.fieldErrors.image}</div>}
               </Tab.Pane>
               <Tab.Pane eventKey="upload">
                 <div
                   {...dropzone.getRootProps()}
-                  className={`text-center p-4 border border-2 border-dashed rounded-3 ${dropzone.isDragActive ? "border-primary bg-light" : ''}`}
+                  className={`text-center p-4 border border-2 border-dashed rounded-3 ${state.fieldErrors?.image ? "border-danger bg-light-danger" :
+                    dropzone.isDragActive ? "border-primary bg-light" : ''
+                    }`}
                   style={{ cursor: "pointer" }}
                 >
                   <input {...dropzone.getInputProps()} />
@@ -69,6 +72,7 @@ const Step2 = ({ stepperInstance, draftData, onSave }) => {
                     </>
                   )}
                 </div>
+                {state.fieldErrors?.image && <div className="text-danger small mt-2">{state.fieldErrors.image}</div>}
               </Tab.Pane>
             </Tab.Content>
           </Tab.Container>
@@ -98,12 +102,13 @@ const Step2 = ({ stepperInstance, draftData, onSave }) => {
           <div className="mb-3">
             <label className="form-label">Video ID / Key</label>
             <input
-              className="form-control"
+              className={`form-control ${state.fieldErrors?.videoId ? "is-invalid" : ''}`}
               type="text"
               value={state.videoState.videoId}
               onChange={(e) => methods.setVideoState({ videoId: e.target.value, file: null })}
               placeholder="eg. LECxxxx..."
             />
+            {state.fieldErrors?.videoId && <div className="invalid-feedback">{state.fieldErrors.videoId}</div>}
           </div>
 
           <div className="position-relative my-3 px-3">
@@ -127,7 +132,7 @@ const Step2 = ({ stepperInstance, draftData, onSave }) => {
                 <span className="text-primary h6 mb-0">Uploading Video...</span>
                 <span className="text-primary fw-bold">{state.vidProgress}%</span>
               </div>
-              <ProgressBar now={state.vidProgress} animated variant="primary" style={{ height: '10px' }} />
+              <ProgressBar now={state.vidProgress} animated variant="primary" style={{ height: "10px" }} />
             </div>
           )}
 

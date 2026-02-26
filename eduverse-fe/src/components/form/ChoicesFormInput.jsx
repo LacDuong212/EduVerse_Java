@@ -1,7 +1,6 @@
 import Choices from 'choices.js';
 import { useEffect, useRef } from 'react';
 
-
 const ChoicesFormInput = ({
   children,
   multiple,

@@ -1,70 +1,77 @@
-import { useState, useEffect } from "react";
+import _ from "lodash";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { useCategories } from "@/hooks/useCategories";
+import { useCourseEditor } from "../../CourseEditorContext";
 
-export const useStep1 = (draftData, onSave, stepperInstance) => {
-  const [saving, setSaving] = useState(false);
+export const useStep1 = (stepperInstance) => {
   const [errors, setErrors] = useState({});
-  
   const { categories, loading: categoriesLoading } = useCategories();
-
-  const [formData, setFormData] = useState({
-    title: '', subtitle: '', categoryId: '',
-    level: '', language: '', duration: '', durationUnit: "second",
-    price: '', discountPrice: '', enableDiscount: false,
-    description: '', isPrivate: false,
-  });
+  const {
+    currentCourse: course,
+    courseDraft: draft,
+    updateField: onUpdateField,
+    onSaveDraft
+  } = useCourseEditor();
 
   // utils
   const formatCurrency = (val) => {
     if (val === 0) return '0';
     if (!val) return '';
-    return new Intl.NumberFormat("en-US").format(Number(String(val).replace(/[^0-9.-]/g, '')));
+    const num = String(val).replace(/[^0-9.-]/g, '');
+    return new Intl.NumberFormat("en-US").format(Number(num));
   };
 
   const parseCurrency = (str) => {
     const digits = String(str || '').replace(/[^0-9.-]/g, '');
-    return digits === '' ? NaN : Number(digits);
+    return digits === '' ? 0 : Number(digits);
   };
 
-  // lifecycle
-  useEffect(() => {
-    if (draftData) {
-      setFormData(prev => ({
-        ...prev,
-        ...draftData,
-        price: formatCurrency(draftData.price),
-        discountPrice: formatCurrency(draftData.discountPrice),
-      }));
-    }
-  }, [draftData]);
-
-  // handlers
-  const updateField = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+  const displayData = {
+    ...course,
+    price: formatCurrency(course?.price),
+    discountPrice: formatCurrency(course?.discountPrice),
   };
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
     let finalValue = type === "checkbox" ? checked : value;
-    if (name === "price" || name === "discountPrice") finalValue = formatCurrency(value);
-    updateField(name, finalValue);
+
+    if (name === "price" || name === "discountPrice") {
+      finalValue = parseCurrency(value);
+    }
+
+    onUpdateField(name, finalValue);
+
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+  };
+
+  const handleCustomChange = (name, value) => {
+    if (name === "description") {
+      // check if the HTML contains any real text or images
+      const plainText = value.replace(/<(.|\n)*?>/g, '').trim();
+      if (plainText.length === 0 && !value.includes('<img')) {
+        value = "";
+      }
+    }
+
+    onUpdateField(name, value);
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
   const validate = () => {
     const errs = {};
-    const p = parseCurrency(formData.price);
-    const d = parseCurrency(formData.discountPrice);
+    const p = course?.price || 0;
+    const d = course?.discountPrice || 0;
 
-    if (!formData.title?.trim()) errs.title = "Title is required";
-    if (!formData.category) errs.category = "Category is required";
-    if (!formData.level) errs.level = "Level is required";
-    if (!formData.language) errs.language = "Language is required";
-    if (isNaN(p) || p < 0) errs.price = "Valid price is required";
+    if (!course.title?.trim()) errs.title = "Title is required";
+    if (!course.categoryId) errs.categoryId = "Category is required";
+    if (!course.level) errs.level = "Level is required";
+    if (!course.language) errs.language = "Language is required";
+    if (p < 0) errs.price = "Valid price is required";
 
-    if (formData.enableDiscount) {
-      if (isNaN(d) || d <= 0) errs.discountPrice = "Valid discount required";
+    if (course?.enableDiscount) {
+      if (d <= 0) errs.discountPrice = "Valid discount required";
       else if (d >= p) errs.discountPrice = "Must be less than price";
     }
 
@@ -72,30 +79,47 @@ export const useStep1 = (draftData, onSave, stepperInstance) => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return toast.error("Please recheck the form for errors");
 
-    setSaving(true);
-    const payload = {
-      ...formData,
-      price: parseCurrency(formData.price),
-      discountPrice: parseCurrency(formData.discountPrice) || 0
-    };
-    onSave(payload);
+    if (course?.status?.toUpperCase() === "DRAFT") {
+      try {
+        const step1Fields = [
+          "title", "subtitle",
+          "categoryId",
+          "level", "language",
+          "price", "discountPrice", "enableDiscount",
+          "description",
+          "isPrivate",
+        ];
+
+        // pick only existing step1 fields
+        const step1Data = _.pick(draft, step1Fields);
+
+        if (!_.isEmpty(step1Data)) {
+          await onSaveDraft(step1Data);
+          toast.success("Course details saved!");
+        }
+      } catch (err) {
+        console.error("Save course details error:", err);
+        toast.error(err?.message || "Failed to save course details");
+        return;
+      }
+    } else {
+      toast.info("Details updated locally.");
+    }
+
     stepperInstance?.next();
-    toast.success("Step 1 saved");
-    setSaving(false);
   };
 
-  return { 
-    formData, 
-    errors, 
-    categories, 
+  return {
+    formData: displayData,
+    errors,
+    categories,
     categoriesLoading,
-    saving, 
-    handleChange, 
-    updateField, 
-    handleSubmit 
+    handleChange,
+    handleCustomChange,
+    handleSubmit
   };
 };
